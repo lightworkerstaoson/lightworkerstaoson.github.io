@@ -1,5 +1,4 @@
 
-
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
@@ -7,7 +6,7 @@
   <title>三清.玄之子 · Lightworkers Taoson</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -58,9 +57,10 @@
     }
 
     .name-zh {
-      font-size: 1.2rem;
-      font-weight: 600;
-      letter-spacing: 0.18em;
+      font-size: 1.25rem;
+      font-weight: 900;
+      letter-spacing: 0.22em;
+      font-family: 'Noto Serif TC', serif;
       animation: fadeDown 0.9s ease 0.1s both;
     }
     .name-en {
