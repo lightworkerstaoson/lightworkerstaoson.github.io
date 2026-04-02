@@ -1,9 +1,9 @@
-
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>三清.玄之子 · Lightworkers Taoson</title>
+  <title>三清玄之子 · Lightworkers Taoson</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600;700;900&family=Cormorant+Garamond:ital,wght@0,300;1,300&display=swap" rel="stylesheet" />
@@ -143,6 +143,7 @@
     .link-card:hover::before { opacity: 1; }
 
     /* accent line colors per platform */
+    .lc-letter::before  { background: linear-gradient(to bottom, #c4933a, #9e2a2a); }
     .lc-xhs::before     { background: #ff2442; }
     .lc-lemon8::before  { background: #f5c518; }
     .lc-form::before    { background: var(--red); }
@@ -159,6 +160,14 @@
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
+    .ic-letter  { background: linear-gradient(135deg, rgba(196,147,58,0.15), rgba(158,42,42,0.15)); color: #9e2a2a; }
+    .lc-letter  {
+      background: linear-gradient(135deg, rgba(249,240,224,0.95), rgba(245,232,218,0.95));
+      border-color: #d4a96a;
+    }
+    .lc-letter .link-label-zh { color: #7a2020; font-size: 0.92rem; }
+    .lc-letter .link-label-en { color: #a0683a; }
+    .lc-letter:hover { background: linear-gradient(135deg, rgba(240,225,200,0.98), rgba(235,215,198,0.98)); border-color: #c4933a; }
     .ic-xhs     { background: rgba(255,36,66,0.1);  color: #ff2442; }
     .ic-lemon8  { background: rgba(245,197,24,0.15); color: #c49a00; }
     .ic-form    { background: rgba(158,42,42,0.1);  color: var(--red); }
@@ -177,15 +186,16 @@
     .link-card:hover .link-arrow { transform: translateX(3px); color: var(--gold); }
 
     /* animation delays */
-    .links .link-card:nth-child(1) { animation-delay: 0.5s; }
-    .links .link-card:nth-child(2) { animation-delay: 0.6s; }
-    .links .link-card:nth-child(3) { animation-delay: 0.7s; }
-    .links .link-card:nth-child(4) { animation-delay: 0.8s; }
-    .links .link-card:nth-child(5) { animation-delay: 0.9s; }
-    .links .link-card:nth-child(6) { animation-delay: 1.0s; }
-    .links .link-card:nth-child(7) { animation-delay: 1.1s; }
-    .links .link-card:nth-child(8) { animation-delay: 1.2s; }
-    .links .link-card:nth-child(9) { animation-delay: 1.3s; }
+    .links .link-card:nth-child(1)  { animation-delay: 0.5s; }
+    .links .link-card:nth-child(2)  { animation-delay: 0.6s; }
+    .links .link-card:nth-child(3)  { animation-delay: 0.7s; }
+    .links .link-card:nth-child(4)  { animation-delay: 0.8s; }
+    .links .link-card:nth-child(5)  { animation-delay: 0.9s; }
+    .links .link-card:nth-child(6)  { animation-delay: 1.0s; }
+    .links .link-card:nth-child(7)  { animation-delay: 1.1s; }
+    .links .link-card:nth-child(8)  { animation-delay: 1.2s; }
+    .links .link-card:nth-child(9)  { animation-delay: 1.3s; }
+    .links .link-card:nth-child(10) { animation-delay: 1.4s; }
 
     /* Footer */
     .footer {
@@ -222,6 +232,15 @@
   <div class="divider"><span class="divider-glyph">✦</span></div>
 
   <div class="links">
+
+    <a class="link-card lc-letter" href="https://lightworkerstaoson.github.io/letters.html" target="_blank" rel="noopener">
+      <div class="link-icon ic-letter">✉️</div>
+      <div class="link-text">
+        <div class="link-label-zh">清明法會・先人給你的一封信</div>
+        <div class="link-label-en">A Letter from Your Ancestors</div>
+      </div>
+      <span class="link-arrow">›</span>
+    </a>
 
     <a class="link-card lc-web" href="https://taosonspritualandwellnesscentr.godaddysites.com/" target="_blank" rel="noopener">
       <div class="link-icon ic-web">🌐</div>
@@ -328,7 +347,7 @@
   </div>
 
   <div class="footer">
-    <div>三清.玄之子 · Lightworkers Taoson</div>
+    <div>三清玄之子 · Lightworkers Taoson</div>
     <div>Vancouver · @lightworkerstaoson</div>
   </div>
 
