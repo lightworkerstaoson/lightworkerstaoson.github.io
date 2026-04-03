@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>三清玄之子 · 法會經文</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #f5f0e6;
+    --surface: #faf7f0;
+    --border: #c8b89a;
+    --gold: #9a7a3a;
+    --ink: #1e1208;
+    --muted: #6b5a3e;
+    --tab-active: #5a3a1a;
+    --red: #8b2020;
+    --header-h: 80px;
+    --notice-h: 44px;
+    --tab-h: 50px;
+  }
+  body {
+    background: var(--bg);
+    font-family: 'Noto Serif TC', serif;
+    color: var(--ink);
+    height: 100vh;
+    overflow: hidden;
+  }
+  header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: var(--header-h);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 200;
+    box-shadow: 0 2px 8px rgba(90,58,26,0.10);
+  }
+  header img { height: 44px; width: auto; }
+  .brand-name {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--tab-active);
+    letter-spacing: 0.12em;
+  }
+  .notice-bar {
+    position: fixed;
+    top: var(--header-h);
+    left: 0; right: 0;
+    height: var(--notice-h);
+    background: var(--red);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    z-index: 198;
+    padding: 0 16px;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .tabs {
+    position: fixed;
+    top: calc(var(--header-h) + var(--notice-h));
+    left: 0; right: 0;
+    height: var(--tab-h);
+    background: var(--surface);
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    z-index: 199;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 0 0 auto;
+    padding: 0 20px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    letter-spacing: 0.08em;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .tab.active {
+    color: var(--tab-active);
+    border-bottom-color: var(--gold);
+    font-weight: 700;
+  }
+  .content-area {
+    position: fixed;
+    top: calc(var(--header-h) + var(--notice-h) + var(--tab-h));
+    left: 0; right: 0; bottom: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--bg);
+  }
+  .section {
+    display: none;
+    padding: 16px 12px 40px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+  .section.active { display: block; }
+  .section img {
+    width: 100%;
+    display: block;
+    border-radius: 4px;
+    box-shadow: 0 2px 12px rgba(90,58,26,0.12);
+    margin-bottom: 16px;
+  }
+  .page-count {
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 24px;
+    letter-spacing: 0.1em;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <img src="logo.jpg" alt="三清玄之子">
+  <span class="brand-name">三清玄之子</span>
+</header>
+
+<div class="notice-bar">
+  ⚠️ 此經文為超渡法會專用，嚴禁下載及在家自行念誦。
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showTab(0)">朝仙聖／朝幡神</button>
+  <button class="tab" onclick="showTab(1)">朝牌位</button>
+  <button class="tab" onclick="showTab(2)">玄門散花科</button>
+  <button class="tab" onclick="showTab(3)">玄門幽科</button>
+</div>
+
+<div class="content-area" id="contentArea">
+
+  <div class="section active" id="tab0">
+    <img src="朝仙聖1.jpg" alt="朝仙聖1.jpg">
+    <img src="朝仙聖2.jpg" alt="朝仙聖2.jpg">
+    <img src="朝仙聖3.jpg" alt="朝仙聖3.jpg">
+    <img src="朝仙聖4.jpg" alt="朝仙聖4.jpg">
+    <img src="朝仙聖5.jpg" alt="朝仙聖5.jpg">
+    <img src="朝仙聖6.jpg" alt="朝仙聖6.jpg">
+    <img src="朝仙聖7.jpg" alt="朝仙聖7.jpg">
+    <img src="朝仙聖8.jpg" alt="朝仙聖8.jpg">
+    <img src="朝仙聖9.jpg" alt="朝仙聖9.jpg">
+    <p class="page-count">── 共 9 頁 ──</p>
+  </div>
+
+  <div class="section" id="tab1">
+    <img src="朝牌位1.jpg" alt="朝牌位1.jpg">
+    <img src="朝牌位2.jpg" alt="朝牌位2.jpg">
+    <img src="朝牌位3.jpg" alt="朝牌位3.jpg">
+    <img src="朝牌位4.jpg" alt="朝牌位4.jpg">
+    <img src="朝牌位5.jpg" alt="朝牌位5.jpg">
+    <p class="page-count">── 共 5 頁 ──</p>
+  </div>
+
+  <div class="section" id="tab2">
+    <img src="散0.jpg" alt="散0.jpg">
+    <img src="散1.jpg" alt="散1.jpg">
+    <img src="散2.jpg" alt="散2.jpg">
+    <img src="散3.jpg" alt="散3.jpg">
+    <img src="散4.jpg" alt="散4.jpg">
+    <img src="散5.jpg" alt="散5.jpg">
+    <img src="散6.jpg" alt="散6.jpg">
+    <img src="散7.jpg" alt="散7.jpg">
+    <img src="散8.jpg" alt="散8.jpg">
+    <img src="散9.jpg" alt="散9.jpg">
+    <img src="散10.jpg" alt="散10.jpg">
+    <img src="散11.jpg" alt="散11.jpg">
+    <img src="散12.jpg" alt="散12.jpg">
+    <img src="散13.jpg" alt="散13.jpg">
+    <img src="散14.jpg" alt="散14.jpg">
+    <img src="散15.jpg" alt="散15.jpg">
+    <img src="散16.jpg" alt="散16.jpg">
+    <img src="散17.jpg" alt="散17.jpg">
+    <img src="散18.jpg" alt="散18.jpg">
+    <img src="散19.jpg" alt="散19.jpg">
+    <img src="散20.jpg" alt="散20.jpg">
+    <img src="散21.jpg" alt="散21.jpg">
+    <img src="散22.jpg" alt="散22.jpg">
+    <img src="散23.jpg" alt="散23.jpg">
+    <img src="散24.jpg" alt="散24.jpg">
+    <img src="散25.jpg" alt="散25.jpg">
+    <img src="散26.jpg" alt="散26.jpg">
+    <img src="散27.jpg" alt="散27.jpg">
+    <img src="散28.jpg" alt="散28.jpg">
+    <img src="散29.jpg" alt="散29.jpg">
+    <img src="散30.jpg" alt="散30.jpg">
+    <img src="散31.jpg" alt="散31.jpg">
+    <img src="散32.jpg" alt="散32.jpg">
+    <img src="散33.jpg" alt="散33.jpg">
+    <img src="散34.jpg" alt="散34.jpg">
+    <img src="散35.jpg" alt="散35.jpg">
+    <img src="散36.jpg" alt="散36.jpg">
+    <img src="散37.jpg" alt="散37.jpg">
+    <img src="散38.jpg" alt="散38.jpg">
+    <img src="散39.jpg" alt="散39.jpg">
+    <img src="散40.jpg" alt="散40.jpg">
+    <img src="散41.jpg" alt="散41.jpg">
+    <img src="散42.jpg" alt="散42.jpg">
+    <img src="散43.jpg" alt="散43.jpg">
+    <img src="散44.jpg" alt="散44.jpg">
+    <img src="散45.jpg" alt="散45.jpg">
+    <img src="散46.jpg" alt="散46.jpg">
+    <img src="散47.jpg" alt="散47.jpg">
+    <img src="散48.jpg" alt="散48.jpg">
+    <img src="散49.jpg" alt="散49.jpg">
+    <img src="散50.jpg" alt="散50.jpg">
+    <img src="散51.jpg" alt="散51.jpg">
+    <img src="散52.jpg" alt="散52.jpg">
+    <img src="散53.jpg" alt="散53.jpg">
+    <img src="散54.jpg" alt="散54.jpg">
+    <img src="散55.jpg" alt="散55.jpg">
+    <img src="散56.jpg" alt="散56.jpg">
+    <img src="散57.jpg" alt="散57.jpg">
+    <img src="散58.jpg" alt="散58.jpg">
+    <img src="散59.jpg" alt="散59.jpg">
+    <img src="散60.jpg" alt="散60.jpg">
+    <img src="散61.jpg" alt="散61.jpg">
+    <img src="散62.jpg" alt="散62.jpg">
+    <img src="散63.jpg" alt="散63.jpg">
+    <img src="散64.jpg" alt="散64.jpg">
+    <img src="散65.jpg" alt="散65.jpg">
+    <img src="散66.jpg" alt="散66.jpg">
+    <img src="散67.jpg" alt="散67.jpg">
+    <img src="散68.jpg" alt="散68.jpg">
+    <img src="散69.jpg" alt="散69.jpg">
+    <img src="散70.jpg" alt="散70.jpg">
+    <img src="散71.jpg" alt="散71.jpg">
+    <img src="散72.jpg" alt="散72.jpg">
+    <img src="散73.jpg" alt="散73.jpg">
+    <img src="散74.jpg" alt="散74.jpg">
+    <img src="散75.jpg" alt="散75.jpg">
+    <p class="page-count">── 共 76 頁 ──</p>
+  </div>
+
+  <div class="section" id="tab3">
+    <img src="幽0.jpg" alt="幽0.jpg">
+    <img src="幽1.jpg" alt="幽1.jpg">
+    <img src="幽2.jpg" alt="幽2.jpg">
+    <img src="幽3.jpg" alt="幽3.jpg">
+    <img src="幽4.jpg" alt="幽4.jpg">
+    <img src="幽5.jpg" alt="幽5.jpg">
+    <img src="幽6.jpg" alt="幽6.jpg">
+    <img src="幽7.jpg" alt="幽7.jpg">
+    <img src="幽8.jpg" alt="幽8.jpg">
+    <img src="幽9.jpg" alt="幽9.jpg">
+    <img src="幽10.jpg" alt="幽10.jpg">
+    <img src="幽11.jpg" alt="幽11.jpg">
+    <img src="幽12.jpg" alt="幽12.jpg">
+    <img src="幽13.jpg" alt="幽13.jpg">
+    <img src="幽14.jpg" alt="幽14.jpg">
+    <img src="幽15.jpg" alt="幽15.jpg">
+    <img src="幽16.jpg" alt="幽16.jpg">
+    <img src="幽17.jpg" alt="幽17.jpg">
+    <img src="幽18.jpg" alt="幽18.jpg">
+    <img src="幽19.jpg" alt="幽19.jpg">
+    <img src="幽20.jpg" alt="幽20.jpg">
+    <img src="幽21.jpg" alt="幽21.jpg">
+    <img src="幽22.jpg" alt="幽22.jpg">
+    <p class="page-count">── 共 23 頁 ──</p>
+  </div>
+
+</div>
+
+<script>
+  const tabs = document.querySelectorAll('.tab');
+  const sections = document.querySelectorAll('.section');
+  const contentArea = document.getElementById('contentArea');
+
+  function showTab(i) {
+    tabs.forEach((t, idx) => t.classList.toggle('active', idx === i));
+    sections.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    contentArea.scrollTop = 0;
+  }
+</script>
+
+</body>
+</html>
