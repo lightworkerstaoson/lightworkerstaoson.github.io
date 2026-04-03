@@ -196,6 +196,7 @@
     .links .link-card:nth-child(8)  { animation-delay: 1.2s; }
     .links .link-card:nth-child(9)  { animation-delay: 1.3s; }
     .links .link-card:nth-child(10) { animation-delay: 1.4s; }
+    .links .link-card:nth-child(11) { animation-delay: 1.5s; }
 
     /* Footer */
     .footer {
@@ -238,6 +239,15 @@
       <div class="link-text">
         <div class="link-label-zh">清明法會・先人給你的一封信</div>
         <div class="link-label-en">A Letter from Your Ancestors</div>
+      </div>
+      <span class="link-arrow">›</span>
+    </a>
+
+    <a class="link-card lc-letter" href="https://lightworkerstaoson.github.io/jingwen_final.html" target="_blank" rel="noopener">
+      <div class="link-icon ic-letter">📿</div>
+      <div class="link-text">
+        <div class="link-label-zh">思恩法會專用經文</div>
+        <div class="link-label-en">超渡法會專用・嚴禁下載及自行在家念誦</div>
       </div>
       <span class="link-arrow">›</span>
     </a>
