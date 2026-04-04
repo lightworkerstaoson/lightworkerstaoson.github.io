@@ -416,15 +416,6 @@
       <span class="link-arrow">›</span>
     </a>
 
-    <a class="link-card lc-form" href="https://forms.gle/BXEckinbLT4TGk4T9" target="_blank" rel="noopener">
-      <div class="link-icon ic-form">📋</div>
-      <div class="link-text">
-        <div class="link-label-zh">2026清明思恩法會報名</div>
-        <div class="link-label-en">Qingming Memorial Ceremony Registration</div>
-      </div>
-      <span class="link-arrow">›</span>
-    </a>
-
     <a class="link-card lc-form" href="https://forms.gle/4vZNxtyM7ZMNemUR6" target="_blank" rel="noopener">
       <div class="link-icon ic-form">📋</div>
       <div class="link-text">
