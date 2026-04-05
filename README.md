@@ -323,15 +323,6 @@
       <span class="link-arrow">›</span>
     </a>
 
-    <a class="link-card lc-letter" href="https://lightworkerstaoson.github.io/jingwen_final.html" target="_blank" rel="noopener">
-      <div class="link-icon ic-letter">📿</div>
-      <div class="link-text">
-        <div class="link-label-zh">思恩法會專用經文</div>
-        <div class="link-label-en">超渡法會專用・嚴禁下載及自行在家念誦</div>
-      </div>
-      <span class="link-arrow">›</span>
-    </a>
-
     <a class="link-card lc-web" href="https://taosonspritualandwellnesscentr.godaddysites.com/" target="_blank" rel="noopener">
       <div class="link-icon ic-web">🌐</div>
       <div class="link-text">
