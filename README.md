@@ -314,15 +314,6 @@
       <span class="link-arrow">›</span>
     </a>
 
-    <a class="link-card lc-letter" href="https://lightworkerstaoson.github.io/letters.html" target="_blank" rel="noopener">
-      <div class="link-icon ic-letter">✉️</div>
-      <div class="link-text">
-        <div class="link-label-zh">清明法會・先人給你的一封信</div>
-        <div class="link-label-en">A Letter from Your Ancestors</div>
-      </div>
-      <span class="link-arrow">›</span>
-    </a>
-
     <a class="link-card lc-web" href="https://taosonspritualandwellnesscentr.godaddysites.com/" target="_blank" rel="noopener">
       <div class="link-icon ic-web">🌐</div>
       <div class="link-text">
@@ -383,26 +374,6 @@
       <div class="link-text">
         <div class="link-label-zh">TikTok</div>
         <div class="link-label-en">@lightworkers.taoson</div>
-      </div>
-      <span class="link-arrow">›</span>
-    </a>
-
-    <a class="link-card lc-xhs" href="https://xhslink.com/m/5fu1cenP3pO" target="_blank" rel="noopener">
-      <div class="link-icon ic-xhs">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.5 7.5h-2.25V8h-1.5v1.5H10.5V11h2.25v1.5H10.5V14h1.793l-2.043 2.5h1.875L13.5 14.9l1.375 1.6H16.75L14.707 14H16.5v-1.5h-2.25V11H16.5V9.5z"/></svg>
-      </div>
-      <div class="link-text">
-        <div class="link-label-zh">小紅書</div>
-        <div class="link-label-en">Xiaohongshu · RED</div>
-      </div>
-      <span class="link-arrow">›</span>
-    </a>
-
-    <a class="link-card lc-lemon8" href="https://s.lemon8-app.com/s/GgZFjrMjYk" target="_blank" rel="noopener">
-      <div class="link-icon ic-lemon8">🍋</div>
-      <div class="link-text">
-        <div class="link-label-zh">檸檬吧</div>
-        <div class="link-label-en">Lemon8</div>
       </div>
       <span class="link-arrow">›</span>
     </a>
