@@ -313,14 +313,7 @@
       </div>
       <span class="link-arrow">›</span>
     </a>
-   <a class="link-card lc-form" href="https://forms.gle/uewajBrUEUeWqunD9" target="_blank" rel="noopener">
-  <div class="link-icon ic-form">📋</div>
-  <div class="link-text">
-    <div class="link-label-zh">丙午年中元普渡報名</div>
-    <div class="link-label-en">Ghost Festival Ceremony Registration</div>
-  </div>
-  <span class="link-arrow">›</span>
-</a>
+   
     <a class="link-card lc-web" href="https://taosonspritualandwellnesscentr.godaddysites.com/" target="_blank" rel="noopener">
       <div class="link-icon ic-web">🌐</div>
       <div class="link-text">
@@ -385,7 +378,7 @@
       <span class="link-arrow">›</span>
     </a>
 
-    <a class="link-card lc-form" href="https://forms.gle/4vZNxtyM7ZMNemUR6" target="_blank" rel="noopener">
+    <a class="link-card lc-form" href="https://forms.gle/wGKTFPSBgKENS13k6" target="_blank" rel="noopener">
       <div class="link-icon ic-form">📋</div>
       <div class="link-text">
         <div class="link-label-zh">功德法會專場報名</div>
