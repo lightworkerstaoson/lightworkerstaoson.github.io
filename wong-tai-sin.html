@@ -1,0 +1,777 @@
+<!doctype html>
+<html lang="zh-Hant-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>黃大仙靈籤 模擬求籤</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@400;700&family=Noto+Serif+TC:wght@700;900&display=swap">
+<style>
+:root{
+  --page:#DCE1DE; --page-ink:#1F2A2A;
+  --display:"Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU",serif;
+  --kai:"LXGW WenKai TC","Kaiti TC","STKaiti","BiauKai","DFKai-SB","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC",serif;
+  --gold:#E6B24A; --gold-soft:#F3D58E; --vermilion:#A8261C; --mist:#F5F1E6;
+  --grain:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35 0 0 0 0 .22 0 0 0 0 .1 0 0 0 .16 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#061112;--page-ink:#D8D3C4;}}
+:root[data-theme="dark"]{--page:#061112;--page-ink:#D8D3C4;}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);}
+*,*::before,*::after{box-sizing:border-box;}
+body{margin:0;height:100%;background:var(--page);color:var(--page-ink);font-family:var(--kai);-webkit-font-smoothing:antialiased;overflow:hidden;}
+.stage-wrap{height:100%;container-type:size;display:grid;place-items:center;}
+.frame{position:relative;width:min(100cqw,100cqh * .5625);height:min(100cqh,100cqw * 2.17);overflow:hidden;overflow:clip;container-type:size;background:#1A1410;isolation:isolate;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:manipulation;}
+@media (min-width:640px){.frame{border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);}}
+
+/* ---------- temple courtyard ---------- */
+.sky{position:absolute;inset:0;background:radial-gradient(60cqw 18cqh at 50% 28%,rgba(255,214,140,.55),transparent 70%),linear-gradient(180deg,#2F5A57 0%,#7F8663 20%,#CFA15E 36%,#B7834C 48%,#6B4C36 70%);}
+.hall{position:absolute;top:6.5cqh;left:0;width:100%;aspect-ratio:400/250;display:block;}
+.plaza{position:absolute;left:0;top:calc(6.5cqh + 62.5cqw - 1px);bottom:0;width:100%;height:auto;display:block;}
+.censer{position:absolute;left:50%;bottom:50cqh;width:32cqw;margin-left:-16cqw;aspect-ratio:200/280;overflow:visible;display:block;}
+.haze{position:absolute;inset:-10% -20%;pointer-events:none;background:radial-gradient(40cqw 12cqh at 32% 34%,rgba(255,240,215,.2),transparent 70%),radial-gradient(50cqw 14cqh at 68% 44%,rgba(255,240,215,.16),transparent 70%);animation:drift 18s ease-in-out infinite alternate;}
+@keyframes drift{from{transform:translateX(-4%)}to{transform:translateX(4%)}}
+.flame{transform-box:fill-box;transform-origin:50% 100%;animation:flick .28s steps(2) infinite alternate;}
+@keyframes flick{from{transform:scaleY(.82)}to{transform:scaleY(1.05)}}
+.halo{animation:breathe 3.2s ease-in-out infinite alternate;}
+@keyframes breathe{from{opacity:.65}to{opacity:1}}
+.puff{opacity:.42;stroke-dasharray:46 24;animation:puff 6.5s ease-in-out infinite,flow 3.2s linear infinite;}
+.puff:nth-child(2){animation-delay:-2.2s,-1s;}
+.puff:nth-child(3){animation-delay:-4.3s,-2s;}
+@keyframes puff{0%{opacity:0;transform:translateY(14px)}25%{opacity:.6}70%{opacity:.3}100%{opacity:0;transform:translateY(-36px)}}
+@keyframes flow{to{stroke-dashoffset:-140}}
+.tip{animation:ember 1.6s ease-in-out infinite alternate;}
+@keyframes ember{from{opacity:.5}to{opacity:1}}
+#mine{opacity:0;transition:opacity .9s ease;}
+.censer.mine #mine{opacity:1;}
+
+/* ---------- foreground (what's in your hands) ---------- */
+.fgi{position:absolute;inset:0;z-index:3;opacity:0;visibility:hidden;transform:translateY(8cqh);pointer-events:none;transition:opacity .45s ease,transform .6s cubic-bezier(.2,.7,.2,1),visibility 0s linear .6s;}
+.frame[data-step="ask"] .w-tube,.frame[data-step="pray"] .w-tube,.frame[data-step="shake"] .w-tube,
+.frame[data-step="incense"] .w-inc,.frame[data-step="cup"] .w-cups,.frame[data-step="result"] .w-cups{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .6s cubic-bezier(.2,.7,.2,1),visibility 0s;}
+.tube{position:absolute;left:50%;bottom:15cqh;width:40cqw;margin-left:-20cqw;aspect-ratio:200/300;overflow:visible;display:block;transform-origin:50% 85%;transform:rotate(-7deg);}
+.frame[data-step="shake"] .tube{pointer-events:auto;cursor:grab;touch-action:none;}
+.tube.shaking{animation:shakeTube .16s ease-in-out infinite alternate;}
+@keyframes shakeTube{from{transform:rotate(-13deg) translate(-1.4cqw,.6cqh)}to{transform:rotate(-1deg) translate(1.4cqw,-.8cqh)}}
+.tube.shaking .st{animation:jig .1s steps(2) var(--d) infinite;}
+@keyframes jig{from{transform:translateY(0)}to{transform:translateY(-6px)}}
+.incense{position:absolute;left:50%;bottom:16cqh;width:14cqw;margin-left:-7cqw;aspect-ratio:60/200;overflow:visible;display:block;}
+.incense .tipI{fill:#4A2A1C;transition:fill .4s ease;}
+.incense.lit .tipI{fill:#FFB14A;animation:ember 1.2s ease-in-out infinite alternate;}
+.incense .ismoke{opacity:0;transition:opacity 1s ease .3s;}
+.incense.lit .ismoke{opacity:1;}
+.cups{position:absolute;left:0;right:0;bottom:30cqh;display:flex;justify-content:center;gap:4cqw;}
+.cup{width:24cqw;aspect-ratio:80/50;overflow:visible;display:block;}
+.cup[data-face="flat"] .f-round,.cup[data-face="round"] .f-flat{display:none;}
+.fly{position:absolute;left:0;top:0;z-index:4;width:2cqw;height:17cqw;border-radius:.8cqw;background:linear-gradient(90deg,#B8843F,#E9CC8E 40%,#A87434);opacity:0;pointer-events:none;box-shadow:0 .6cqh 1cqh rgba(0,0,0,.35);}
+.fly::before{content:"";position:absolute;left:0;right:0;top:0;height:22%;border-radius:.8cqw .8cqw 0 0;background:var(--vermilion);}
+.slip{position:absolute;left:50%;top:34cqh;z-index:6;width:12cqw;height:40cqh;margin-left:-6cqw;border-radius:1.4cqw;background:linear-gradient(90deg,#B8843F,#EDD39A 35%,#D9AE66 70%,#A87434);box-shadow:0 2cqh 5cqh rgba(0,0,0,.5);display:flex;justify-content:center;opacity:0;visibility:hidden;transform:scale(.4) rotate(70deg);transition:opacity .4s ease,transform .6s cubic-bezier(.2,.9,.3,1.15),visibility 0s linear .6s;pointer-events:none;overflow:hidden;}
+.slip::before{content:"";position:absolute;left:0;right:0;top:0;height:5cqh;background:var(--vermilion);}
+.slip.show{opacity:1;visibility:visible;transform:rotate(-4deg);transition:opacity .4s ease,transform .6s cubic-bezier(.2,.9,.3,1.15),visibility 0s;}
+.slip span{writing-mode:vertical-rl;white-space:nowrap;height:max-content;margin-top:8cqh;font:700 min(7.4cqw,3.8cqh)/1 var(--kai);letter-spacing:.12em;color:#8E1B13;}
+
+/* ---------- top bar ---------- */
+.top{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:2cqw;padding:1.6cqh 4cqw 2.4cqh;background:linear-gradient(to bottom,rgba(10,18,18,.62),rgba(10,18,18,0));}
+.steps{display:flex;gap:2.6cqw;list-style:none;margin:0;padding:0;font:400 min(3.7cqw,1.9cqh)/1 var(--kai);color:rgba(245,241,230,.45);}
+.steps li{position:relative;white-space:nowrap;transition:color .3s ease;}
+.steps li.done{color:rgba(245,241,230,.78);}
+.steps li.now{color:var(--gold-soft);font-weight:700;}
+.steps li.now::after{content:"";position:absolute;left:50%;bottom:-1.1cqh;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--gold-soft);}
+.mute{flex:none;width:36px;height:36px;border-radius:50%;border:1px solid rgba(245,241,230,.35);background:rgba(8,16,18,.45);color:var(--mist);display:grid;place-items:center;cursor:pointer;padding:0;}
+.mute svg{width:18px;height:18px;fill:currentColor;}
+.mute .i-off{display:none;}
+.mute[aria-pressed="true"] .i-on{display:none;}
+.mute[aria-pressed="true"] .i-off{display:block;}
+
+/* ---------- bottom panel ---------- */
+.panel{position:absolute;left:0;right:0;bottom:0;z-index:5;display:flex;flex-direction:column;align-items:center;gap:1.8cqh;padding:9cqh 6cqw 3.2cqh;text-align:center;pointer-events:none;background:linear-gradient(to top,rgba(14,8,5,.96) 0%,rgba(14,8,5,.86) 58%,rgba(14,8,5,0) 100%);}
+.panel > *{pointer-events:auto;}
+.say{margin:0;min-height:1.6em;font:400 min(4.8cqw,2.6cqh)/1.65 var(--kai);color:var(--mist);text-wrap:pretty;}
+.meter{display:none;width:58cqw;height:4px;border-radius:2px;background:rgba(245,241,230,.2);overflow:hidden;}
+.frame[data-step="shake"] .meter{display:block;}
+.meter b{display:block;height:100%;background:var(--gold-soft);transform:scaleX(0);transform-origin:left;}
+.acts{display:flex;flex-wrap:wrap;justify-content:center;gap:2.2cqw;min-height:46px;}
+.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;height:46px;padding:0 24px;border-radius:999px;border:0;font:700 17px/1 var(--kai);letter-spacing:.08em;cursor:pointer;touch-action:manipulation;-webkit-touch-callout:none;}
+.btn.primary{background:var(--gold);color:#2A1A0A;box-shadow:0 6px 20px rgba(0,0,0,.35);}
+.btn.chip{height:42px;padding:0 17px;font-weight:400;font-size:16px;background:rgba(245,241,230,.08);color:var(--mist);border:1px solid rgba(245,241,230,.38);}
+.btn.chip:hover{background:rgba(245,241,230,.16);}
+.btn:disabled{opacity:.62;cursor:default;}
+.btn.wait::before{content:"";position:absolute;inset:0;background:rgba(255,255,255,.4);transform-origin:left;animation:fillw 2.6s linear both;}
+@keyframes fillw{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.btn.hold{padding:0 30px;touch-action:none;}
+.btn.hold.on{transform:scale(.96);background:var(--gold-soft);}
+button:focus-visible{outline:2px solid var(--gold-soft);outline-offset:3px;}
+@container (max-width:340px){.btn.chip{padding:0 12px;font-size:15px;}.steps{gap:1.8cqw;}}
+
+/* ---------- 籤文 card ---------- */
+.cardwrap{position:absolute;inset:0;z-index:8;display:flex;align-items:flex-end;justify-content:center;background:rgba(4,8,8,.55);opacity:0;visibility:hidden;transition:opacity .4s ease,visibility 0s linear .4s;}
+.cardwrap.show{opacity:1;visibility:visible;transition:opacity .4s ease,visibility 0s;}
+.card{width:94cqw;max-height:calc(100cqh - 10cqh);overflow:auto;margin-bottom:2.5cqh;padding:6cqw 6cqw 5cqw;border-radius:1.6cqw;color:#2B1D12;background:var(--grain) repeat local,#F2E4BC;box-shadow:inset 0 0 0 1cqw #F2E4BC,inset 0 0 0 1.35cqw var(--vermilion),0 2cqh 6cqh rgba(0,0,0,.5);transform:translateY(10cqh);transition:transform .55s cubic-bezier(.2,.7,.2,1);overscroll-behavior:contain;}
+.cardwrap.show .card{transform:none;}
+.c-head{margin:0 0 3cqw;text-align:center;font:400 3.6cqw/1 var(--kai);letter-spacing:.24em;color:var(--vermilion);}
+.c-no{display:flex;align-items:center;justify-content:center;gap:3cqw;}
+.c-no h2{margin:0;font:900 min(10cqw,5.4cqh)/1 var(--display);letter-spacing:.06em;}
+.c-grade{font:900 4.6cqw/1 var(--display);letter-spacing:.1em;color:var(--gold-soft);background:var(--vermilion);padding:1.5cqw 2.2cqw;border-radius:.8cqw;}
+.c-title{margin:3cqw 0 3.5cqw;text-align:center;font:700 5cqw/1 var(--kai);color:#6A4420;}
+.c-poemwrap{display:flex;justify-content:center;padding:4cqw 0;border-top:1px solid rgba(168,38,28,.45);border-bottom:1px solid rgba(168,38,28,.45);}
+.c-poem{writing-mode:vertical-rl;white-space:nowrap;height:max-content;font:700 min(6.6cqw,3.4cqh)/2 var(--kai);letter-spacing:.14em;}
+.c-poem p{margin:0;}
+.c-ask{margin:3.8cqw 0 0;font:400 min(4.5cqw,2.4cqh)/1.7 var(--kai);}
+.c-ask b{margin-right:1.6cqw;font-weight:700;color:var(--vermilion);}
+.c-ref{display:block;margin-top:1.2cqw;color:rgba(43,29,18,.78);}
+.c-label{margin:4.6cqw 0 2cqw;padding-left:.3em;text-align:center;font:700 3.8cqw/1 var(--kai);letter-spacing:.3em;color:var(--vermilion);}
+.c-xj{display:grid;grid-template-columns:1fr 1fr;gap:1.2cqw 2cqw;font:400 min(4.2cqw,2.2cqh)/1.6 var(--kai);text-align:center;}
+.c-xj span{border-radius:.8cqw;padding:.4cqw 0;}
+.c-xj span.hit,.c-ys .hit{color:var(--vermilion);font-weight:700;}
+.c-xj span.hit{background:rgba(168,38,28,.09);}
+.c-ys{display:grid;grid-template-columns:auto auto;justify-content:center;gap:.6cqw 3.2cqw;margin:0;font:400 min(4cqw,2.1cqh)/1.6 var(--kai);}
+.c-ys dt{color:rgba(43,29,18,.62);}
+.c-ys dd{margin:0;}
+.c-note,.c-foot{margin:3cqw 0 0;font:400 3.4cqw/1.6 var(--kai);color:rgba(43,29,18,.66);}
+.card .btn{width:100%;margin-top:4.5cqw;}
+
+/* ---------- intro ---------- */
+.intro{position:absolute;inset:0;z-index:9;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2.2cqh;padding:0 7cqw 9cqh;text-align:center;background:linear-gradient(to top,rgba(10,6,4,.95) 0%,rgba(10,6,4,.8) 45%,rgba(10,6,4,.15) 75%,rgba(10,6,4,0) 100%);transition:opacity .5s ease,visibility 0s;}
+.intro.gone{opacity:0;visibility:hidden;transition:opacity .5s ease,visibility 0s linear .5s;}
+.i-title{margin:0;font:900 min(12cqw,6.2cqh)/1 var(--display);letter-spacing:.14em;margin-right:-.14em;color:var(--gold-soft);text-shadow:0 0 4cqw rgba(230,178,74,.35);}
+.i-sub{margin:-.6cqh 0 0;font:700 min(5.2cqw,2.8cqh)/1 var(--kai);letter-spacing:.3em;margin-right:-.3em;color:var(--mist);}
+.i-flow{margin:0;font:400 min(3.9cqw,2.1cqh)/1.6 var(--kai);letter-spacing:.14em;color:rgba(245,241,230,.72);}
+.i-fine{margin:0;font:400 13px/1.6 var(--kai);color:rgba(245,241,230,.6);}
+
+@media (prefers-reduced-motion:reduce){
+  .haze,.puff,.flame,.halo,.tip,.incense.lit .tipI,.tube.shaking .st{animation:none!important;}
+  .tube.shaking{animation-duration:.4s;}
+}
+</style>
+</head>
+<body>
+<main class="stage-wrap">
+<div class="frame" id="frame" data-step="intro" role="application" aria-label="黃大仙靈籤模擬求籤">
+
+  <div class="sky"></div>
+
+  <!-- the main hall with the deity inside -->
+  <svg class="hall" viewBox="0 60 400 250" aria-hidden="true">
+    <defs>
+      <radialGradient id="hInt" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#8A3A1E"/><stop offset=".6" stop-color="#4A1510"/><stop offset="1" stop-color="#240907"/></radialGradient>
+      <radialGradient id="hHalo"><stop offset="0" stop-color="#FFE3A0" stop-opacity=".95"/><stop offset=".5" stop-color="#F0B64E" stop-opacity=".45"/><stop offset="1" stop-color="#F0B64E" stop-opacity="0"/></radialGradient>
+      <linearGradient id="hRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F2C862"/><stop offset="1" stop-color="#B57C28"/></linearGradient>
+      <linearGradient id="hRobe" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#A8741F"/><stop offset=".5" stop-color="#F0C45C"/><stop offset="1" stop-color="#A8741F"/></linearGradient>
+      <pattern id="hTile" width="9" height="200" patternUnits="userSpaceOnUse"><rect width="1.3" height="200" fill="#8E6020" opacity=".45"/></pattern>
+    </defs>
+    <rect x="0" y="300" width="400" height="10" fill="#7A6D5E"/>
+    <rect x="92" y="196" width="216" height="98" fill="url(#hInt)"/>
+    <circle class="halo" cx="200" cy="246" r="36" fill="url(#hHalo)"/>
+    <g>
+      <path d="M176 292Q178 262 190 254L210 254Q222 262 224 292Z" fill="url(#hRobe)"/>
+      <path d="M187 258Q180 272 186 283L198 280Z" fill="#C38E34"/>
+      <path d="M213 258Q220 272 214 283L202 280Z" fill="#C38E34"/>
+      <ellipse cx="200" cy="281" rx="12" ry="4" fill="#B57C28"/>
+      <circle cx="200" cy="245" r="7.5" fill="#EBC47C"/>
+      <path d="M195.5 249Q200 262 204.5 249Z" fill="#2E2219"/>
+      <rect x="194" y="233" width="12" height="5" rx="1.5" fill="#6A2E10"/>
+      <rect x="198" y="229" width="4" height="5" rx="1" fill="#E6B24A"/>
+    </g>
+    <rect x="152" y="278" width="96" height="3" fill="#E6B24A"/>
+    <rect x="156" y="281" width="88" height="13" fill="#7E1A13"/>
+    <rect x="166" y="266" width="4" height="12" fill="#EFE3CC"/><rect x="230" y="266" width="4" height="12" fill="#EFE3CC"/>
+    <ellipse class="flame" cx="168" cy="262.5" rx="2.2" ry="4" fill="#FFC46B"/>
+    <ellipse class="flame" cx="232" cy="262.5" rx="2.2" ry="4" fill="#FFC46B"/>
+    <path d="M92 196H116Q108 230 112 262Q100 250 92 250Z" fill="#D9A62E" opacity=".92"/>
+    <path d="M308 196H284Q292 230 288 262Q300 250 308 250Z" fill="#D9A62E" opacity=".92"/>
+    <rect x="92" y="196" width="216" height="7" fill="#E0B23C"/>
+    <line x1="97" y1="203" x2="305" y2="203" stroke="#E0B23C" stroke-width="10" stroke-linecap="round" stroke-dasharray="0.1 18"/>
+    <g fill="#9E2218"><rect x="94" y="196" width="12" height="98"/><rect x="146" y="196" width="12" height="98"/><rect x="242" y="196" width="12" height="98"/><rect x="294" y="196" width="12" height="98"/></g>
+    <rect x="84" y="188" width="232" height="12" fill="#1E5A60"/>
+    <line x1="92" y1="194" x2="308" y2="194" stroke="#E6B24A" stroke-width="3" stroke-dasharray="3 11" stroke-linecap="round"/>
+    <path d="M28 164Q60 190 90 190L310 190Q340 190 372 164Q330 170 290 136L110 136Q70 170 28 164Z" fill="url(#hRoof)"/>
+    <path d="M28 164Q60 190 90 190L310 190Q340 190 372 164Q330 170 290 136L110 136Q70 170 28 164Z" fill="url(#hTile)"/>
+    <path d="M28 164Q60 190 90 190L310 190Q340 190 372 164" fill="none" stroke="#6E4A14" stroke-width="2.4" stroke-linecap="round"/>
+    <rect x="128" y="128" width="144" height="10" fill="#7E1A13"/>
+    <rect x="176" y="129" width="48" height="8" fill="#1E5A60" stroke="#E6B24A" stroke-width="1"/>
+    <path d="M78 110Q100 132 125 132L275 132Q300 132 322 110Q290 114 255 90L145 90Q110 114 78 110Z" fill="url(#hRoof)"/>
+    <path d="M78 110Q100 132 125 132L275 132Q300 132 322 110Q290 114 255 90L145 90Q110 114 78 110Z" fill="url(#hTile)"/>
+    <path d="M78 110Q100 132 125 132L275 132Q300 132 322 110" fill="none" stroke="#6E4A14" stroke-width="2" stroke-linecap="round"/>
+    <rect x="138" y="83" width="124" height="8" rx="2" fill="#C98E2F"/>
+    <path d="M140 91C128 88 126 78 132 70C134 78 139 82 146 84Z" fill="#C98E2F"/>
+    <path d="M260 91C272 88 274 78 268 70C266 78 261 82 254 84Z" fill="#C98E2F"/>
+    <circle cx="200" cy="76" r="6.5" fill="#F3D58E"/>
+    <rect x="56" y="292" width="288" height="9" fill="#8A7F72"/>
+    <line x1="60" y1="288" x2="160" y2="288" stroke="#9C9082" stroke-width="7" stroke-dasharray="4 8"/>
+    <line x1="240" y1="288" x2="340" y2="288" stroke="#9C9082" stroke-width="7" stroke-dasharray="4 8"/>
+  </svg>
+
+  <!-- courtyard paving -->
+  <svg class="plaza" viewBox="0 0 400 400" preserveAspectRatio="none" aria-hidden="true">
+    <defs><linearGradient id="pz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7A6D5E"/><stop offset=".45" stop-color="#57493C"/><stop offset="1" stop-color="#2A211B"/></linearGradient></defs>
+    <rect width="400" height="400" fill="url(#pz)"/>
+    <g stroke="#1E1610" stroke-opacity=".35" stroke-width="1" vector-effect="non-scaling-stroke">
+      <line x1="80" y1="0" x2="-280" y2="400" vector-effect="non-scaling-stroke"/><line x1="110" y1="0" x2="-160" y2="400" vector-effect="non-scaling-stroke"/>
+      <line x1="140" y1="0" x2="-40" y2="400" vector-effect="non-scaling-stroke"/><line x1="170" y1="0" x2="80" y2="400" vector-effect="non-scaling-stroke"/>
+      <line x1="200" y1="0" x2="200" y2="400" vector-effect="non-scaling-stroke"/><line x1="230" y1="0" x2="320" y2="400" vector-effect="non-scaling-stroke"/>
+      <line x1="260" y1="0" x2="440" y2="400" vector-effect="non-scaling-stroke"/><line x1="290" y1="0" x2="560" y2="400" vector-effect="non-scaling-stroke"/>
+      <line x1="320" y1="0" x2="680" y2="400" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="16" x2="400" y2="16" vector-effect="non-scaling-stroke"/><line x1="0" y1="42" x2="400" y2="42" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="78" x2="400" y2="78" vector-effect="non-scaling-stroke"/><line x1="0" y1="126" x2="400" y2="126" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="188" x2="400" y2="188" vector-effect="non-scaling-stroke"/><line x1="0" y1="264" x2="400" y2="264" vector-effect="non-scaling-stroke"/>
+      <line x1="0" y1="352" x2="400" y2="352" vector-effect="non-scaling-stroke"/>
+    </g>
+  </svg>
+
+  <!-- incense burner in the courtyard -->
+  <svg class="censer" id="censer" viewBox="0 -120 200 280" aria-hidden="true">
+    <defs>
+      <linearGradient id="cBronze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9A7443"/><stop offset="1" stop-color="#4A321D"/></linearGradient>
+      <filter id="cBlur" x="-80%" y="-10%" width="260%" height="120%"><feGaussianBlur stdDeviation="3"/></filter>
+    </defs>
+    <g filter="url(#cBlur)" fill="none" stroke="#F4EEDF" stroke-width="5" stroke-linecap="round">
+      <path class="puff" d="M92 62C80 30 108 10 96 -24C86 -52 110 -76 98 -112"/>
+      <path class="puff" d="M104 60C118 30 94 4 108 -30C120 -60 100 -84 112 -116"/>
+      <path class="puff" d="M100 64C88 40 104 20 92 -6C82 -30 98 -50 90 -80"/>
+    </g>
+    <g id="others" stroke="#B97A3F" stroke-width="1.6" stroke-linecap="round"></g>
+    <g id="mine">
+      <g stroke="#9C2B1C" stroke-width="2.6" stroke-linecap="round"><line x1="93" y1="86" x2="91" y2="40"/><line x1="100" y1="86" x2="100" y2="36"/><line x1="107" y1="86" x2="109" y2="40"/></g>
+      <g fill="#FFB14A"><circle class="tip" cx="91" cy="40" r="2.4"/><circle class="tip" cx="100" cy="36" r="2.4" style="animation-delay:-.5s"/><circle class="tip" cx="109" cy="40" r="2.4" style="animation-delay:-1s"/></g>
+    </g>
+    <rect x="52" y="68" width="12" height="24" rx="3" fill="url(#cBronze)"/>
+    <rect x="136" y="68" width="12" height="24" rx="3" fill="url(#cBronze)"/>
+    <rect x="44" y="84" width="112" height="9" rx="3" fill="#A9834E"/>
+    <path d="M50 93H150Q150 140 100 140Q50 140 50 93Z" fill="url(#cBronze)"/>
+    <path d="M60 106H140" stroke="#B89060" stroke-width="1.6" opacity=".55"/>
+    <rect x="62" y="130" width="10" height="28" rx="3" fill="#4A321D"/>
+    <rect x="128" y="130" width="10" height="28" rx="3" fill="#4A321D"/>
+    <rect x="95" y="136" width="10" height="22" rx="3" fill="#5A3E24"/>
+  </svg>
+
+  <div class="haze"></div>
+
+  <!-- in your hands: incense -->
+  <div class="fgi w-inc">
+    <svg class="incense" id="incense" viewBox="0 0 60 200" aria-hidden="true">
+      <g class="ismoke" fill="none" stroke="#F4EEDF" stroke-width="2" stroke-linecap="round" opacity=".6">
+        <path class="puff" d="M20 38C14 20 26 6 18 -20C12 -40 22 -56 16 -80"/>
+        <path class="puff" d="M30 34C36 16 24 0 32 -26C38 -46 28 -62 34 -90"/>
+        <path class="puff" d="M40 38C46 22 36 8 44 -16C50 -36 40 -52 46 -74"/>
+      </g>
+      <g stroke="#8C2A1A" stroke-width="3" stroke-linecap="round"><line x1="24" y1="186" x2="20" y2="40"/><line x1="30" y1="186" x2="30" y2="36"/><line x1="36" y1="186" x2="40" y2="40"/></g>
+      <rect x="18" y="146" width="24" height="44" rx="4" fill="#A8261C"/>
+      <rect x="18" y="156" width="24" height="3" fill="#E6B24A"/>
+      <circle class="tipI" cx="20" cy="40" r="2.8"/><circle class="tipI" cx="30" cy="36" r="2.8"/><circle class="tipI" cx="40" cy="40" r="2.8"/>
+    </svg>
+  </div>
+
+  <!-- in your hands: the fortune-stick cylinder -->
+  <div class="fgi w-tube">
+    <svg class="tube" id="tube" viewBox="0 0 200 300" aria-hidden="true">
+      <defs>
+        <linearGradient id="tBody" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#5E100C"/><stop offset=".3" stop-color="#B3261E"/><stop offset=".45" stop-color="#D0452F"/><stop offset=".65" stop-color="#A8261C"/><stop offset="1" stop-color="#4E0C09"/></linearGradient>
+      </defs>
+      <ellipse cx="100" cy="110" rx="55" ry="14" fill="#2A0806"/>
+      <g id="tubeSticks"></g>
+      <g id="chosen">
+        <line x1="100" y1="124" x2="100" y2="36" stroke="#E2BE7E" stroke-width="4.4" stroke-linecap="round"/>
+        <line x1="100" y1="46" x2="100" y2="36" stroke="#A8261C" stroke-width="4.4" stroke-linecap="round"/>
+      </g>
+      <path d="M45 110A55 14 0 0 0 155 110L155 300L45 300Z" fill="url(#tBody)"/>
+      <path d="M45 110A55 14 0 0 0 155 110" fill="none" stroke="#E6B24A" stroke-width="4"/>
+      <path d="M45 132A55 14 0 0 0 155 132" fill="none" stroke="#E6B24A" stroke-width="1.6" opacity=".8"/>
+      <text x="100" y="170" text-anchor="middle" font-size="30" font-weight="700" fill="#F3D58E" style="font-family:var(--kai)">靈</text>
+      <text x="100" y="204" text-anchor="middle" font-size="30" font-weight="700" fill="#F3D58E" style="font-family:var(--kai)">籤</text>
+    </svg>
+  </div>
+
+  <!-- in your hands: the two moon blocks -->
+  <div class="fgi w-cups">
+    <div class="cups">
+      <svg class="cup" id="cupL" data-face="round" viewBox="-40 -25 80 50" aria-hidden="true">
+        <g class="f-round"><path d="M-34 4C-30 -18 30 -18 34 4C20 12 -20 12 -34 4Z" fill="#A8261C" stroke="#5E100C" stroke-width="1.5"/><ellipse cx="-8" cy="-6" rx="13" ry="4" fill="#fff" opacity=".25"/></g>
+        <g class="f-flat"><path d="M-34 4C-30 -18 30 -18 34 4C20 12 -20 12 -34 4Z" fill="#D8B07E" stroke="#8E1B13" stroke-width="2.4"/><path d="M-24 2C-18 7 18 7 24 2" fill="none" stroke="#A8741F" stroke-width="1.2" opacity=".7"/></g>
+      </svg>
+      <svg class="cup" id="cupR" data-face="round" viewBox="-40 -25 80 50" aria-hidden="true" style="transform:scaleX(-1)">
+        <g class="f-round"><path d="M-34 4C-30 -18 30 -18 34 4C20 12 -20 12 -34 4Z" fill="#A8261C" stroke="#5E100C" stroke-width="1.5"/><ellipse cx="-8" cy="-6" rx="13" ry="4" fill="#fff" opacity=".25"/></g>
+        <g class="f-flat"><path d="M-34 4C-30 -18 30 -18 34 4C20 12 -20 12 -34 4Z" fill="#D8B07E" stroke="#8E1B13" stroke-width="2.4"/><path d="M-24 2C-18 7 18 7 24 2" fill="none" stroke="#A8741F" stroke-width="1.2" opacity=".7"/></g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="fly" id="fly" aria-hidden="true"></div>
+  <div class="slip" id="slip" aria-hidden="true"><span id="slipText">第一籤</span></div>
+
+  <header class="top">
+    <ol class="steps" id="steps" aria-label="求籤步驟"></ol>
+    <button class="mute" id="mute" type="button" aria-pressed="false" aria-label="靜音">
+      <svg class="i-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM14 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg>
+      <svg class="i-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4zm12.6.4-1.4 1.4 1.8 1.8-1.8 1.8 1.4 1.4 1.8-1.8 1.8 1.8 1.4-1.4-1.8-1.8 1.8-1.8-1.4-1.4-1.8 1.8z"/></svg>
+    </button>
+  </header>
+
+  <div class="panel">
+    <p class="say" id="say" aria-live="polite"></p>
+    <div class="meter" aria-hidden="true"><b id="meterB"></b></div>
+    <div class="acts" id="acts"></div>
+  </div>
+
+  <div class="cardwrap" id="cardWrap"><article class="card" id="card" tabindex="-1" aria-label="籤文"></article></div>
+
+  <div class="intro" id="intro">
+    <h1 class="i-title">黃大仙靈籤</h1>
+    <p class="i-sub">模擬求籤問事</p>
+    <p class="i-flow">問事　上香　稟告　搖籤　擲杯　解籤</p>
+    <button class="btn primary" id="begin" type="button">入廟求籤</button>
+    <p class="i-fine">全程大約一分鐘。籤文據傳統黃大仙靈籤一百支，僅供娛樂參考。</p>
+  </div>
+</div>
+</main>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const frame = $('frame'), say = $('say'), acts = $('acts'), meterB = $('meterB'), stepsEl = $('steps');
+  const tube = $('tube'), chosen = $('chosen'), incense = $('incense'), censer = $('censer');
+  const cupL = $('cupL'), cupR = $('cupR'), fly = $('fly'), slip = $('slip'), slipText = $('slipText');
+  const cardWrap = $('cardWrap'), card = $('card'), intro = $('intro'), muteBtn = $('mute');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- 籤 (original game verses) ---------- */
+  /* 黃大仙靈籤一百支：號|典故|吉凶|籤詩|仙機|運勢 */
+  const RAW = `
+1|姜公封相|上上|靈籤求得第一枝龍虎風雲際會時一旦凌霄揚自樂任君來往赴瑤池|功名遂。求財豐。六畜吉。家宅隆。病即愈。蚕有功。孕生子。婚姻同。行人至。快如龍。若謀望。盡亨通|風水:發貴兼丁財;遺失:即得回原物;自身:四季俱平安;天時:豐稔又可喜;交易:到處有喜色;出行:往來皆合心
+2|王道真誤入桃源|上吉|枯木逢春盡發新花香葉茂蝶來頻桃源競鬥千紅紫一葉漁舟誤入津|財有望。病亦愈。蚕獲利。婚有緣。家宅吉。行人旋。養六畜。好向前。問六甲。瓜瓞綿。若謀望。福祿全|風水:丁財可小發;遺失:無心得回物;自身:修養有仙緣;天時:快樂又可喜;出行:意外遇貴人
+3|魯班開山|中平|牛山之木皆常美獨惜斧工盡伐他大器大材無足用規矩不準怎為槎|名與利。依理求。蚕與婚。莫妄求。病慎醫。免禍愁。問家宅。德宜修。行未至。孕有憂。凡謀事。勿貪求|風水:多不合剪栽;遺失:原物恐難得;自身:修善乃平安;天時:風雨不合期;出行:防小人口舌
+4|董永遇仙|中吉|調雛紫燕在簷前對語呢喃近午天或往或來低復起有時剪破綠楊煙|宅平安。財微利。婚可求。行漸至。病宜慎。蚕與畜。問六甲。亦可喜。養六畜。亦相宜。謀望事。要知機|風水:平穩無防礙;遺失:得之難定日;自身:調養自精神;天時:豐歉未可知;出行:要關防小人
+5|韓夫人惜花|中吉|東園昨夜狂風急萬紫千紅亦盡傾幸有惜花人早起培回根本復栽生|名與利。要待時。宅運滯。行人遲。孕有險。病擇醫。出行阻。婚遲疑。蚕與畜。得利微。問謀望。謹慎宜|風水:丁財恐要退;遺失:託人情可得;自身:修善免禍侵;天時:遭劫恐難避;出行:損害恐難言
+6|王勃遊滕王閣|上吉|一片孤帆萬里回管絃嘔啞且停杯如雲勝友談風月暢敘幽情極樂哉|蚕有利。名必成。行人至。家宅興。病即愈。財即盈。六畜吉。婚姻成。若六甲。貴子生。問謀望。百事亨|風水:平穩自然發;遺失:多方求可得;自身:積善遇貴人;天時:風雨皆可喜;出行:事事合心情
+7|仁貴歸家|中吉|秋來征雁向南歸紅葉紛紛滿院飛碪搗城頭聲切耳江楓如火在漁磯|論家宅。要關防。婚不合。財平常。蚕與畜。微有傷。病與孕。祈禱良。行人阻。未回鄉。問謀望。少吉祥|風水:平常無可取;遺失:難以尋原物;自身:秋後宜謹慎;天時:多有不便宜;出行:平淡無甚佳
+8|崔子弒齊君|下下|鳴鳩爭奪鵲巢居賓主參差意不舒滿嶺喬松蘿蔦附且猜詩語是何如|宅運滯。行未歸。病與孕。當仔細。問謀望。事無濟。蚕與畜。恐有敝。求財者。勿妄為。論婚姻。總不諧|風水:凶煞多損害;遺失:失了又爭執;自身:疾病口舌多;天時:可憂無可喜;出行:有敗而無成
+9|陶淵明賞菊|上吉|瑤琴一曲奏新腔明月清風枕簟涼咸集嘉賓同賞菊或歌或舞或飛觴|宅平安。行人至。病即愈。孕生子。蚕與畜。均有利。若求財。必如意。問謀事。事如意。問婚姻。合之至|風水:將有丁財來;遺失:不久便得回;自身:平安無疾病;天時:人物皆喜慶;出行:到處有貴人
+10|蘇秦不第|中平|一輪月鏡掛空中偶被浮雲障疊重玉匣何時光氣吐誰人借我一狂風|婚不合。病審醫。宅運滯。行人遲。求財者。要待時。問六甲。必女兒。蚕與畜。謹慎宜。若謀望。當三思|風水:此地暫失運;遺失:待時不用問;自身:有事不用憂;天時:微有不合意;出行:行之無不利
+11|漢文帝賞柳|上吉|楊柳垂堤鎖綠煙日長三起又三眠往來紫燕紛飛舞嬝娜迎風倩我憐|六畜吉。家宅昌。財可得。病者康。孕生子。名必揚。若謀望。皆吉祥。行人至。婚姻良。蚕有利。樂無疆|風水:吉地逢人愛;遺失:求之必可得;自身:積善愈平安;天時:風雨皆可喜;出行:小人變貴人
+12|太白撈月|下下|蜃樓海市幻無邊萬丈擎空接上天或被狂風忽吹散有時仍聚結青煙|病者險。財亦空。蚕與畜。亦無功。問謀望。事無終。婚不合。名未通。行未至。孕有凶。問家宅。未興隆|風水:假局不能發;遺失:強求亦不得;自身:積善免禍侵;天時:事事不如意;出行:結尾必不利
+13|孟浩然尋梅|中平|嶺南初放一枝梅片片晶瑩入酒杯卻遇騎驢人早至兒童背負占春魁|宅平常。財難求。蚕禾造。不用憂。病未愈。行有郵。養六畜。慎之始。名難成。婚不利。孕生男。最歡喜|風水:平常無損害;遺失:尋之亦可得;自身:積善愈精神;天時:寒暑皆合意;出行:善者多扶持
+14|陶淵明醉酒|中吉|為愛幽閒多種竹買春賞雨在茅屋醉時臥倒杏花邊怕聽鶯兒驚夢熟|名與利。莫貪取。行阻遲。病漸愈。問六甲。必生女。蚕與畜。微有利。問婚姻。少合意。宅平常。修德美|風水:美中微有礙;遺失:小人頗難測;自身:安樂防口舌;天時:世事無全美;出行:防小人口舌
+15|明皇遊月殿|上吉|仙槎一葉泛中流月殿蟾宮任爾遊盈耳霓裳聲暫歇酒詩吟飲幾時休|病即安。蚕造勝。行人回。婚宜定。孕生男。家道盛。凡謀事。多吉慶。名與利。求則應。養畜生。有佳景|風水:發財兼發丁;遺失:不久自然得;自身:平安又壯健;天時:萬事俱得利;出行:往來皆快意
+16|皇叔遇水鏡|中吉|天邊鴉背夕陽回隴外兒童跨犢來羌笛頻吹聲切耳短長腔調樂何哉|名與利。在晚成。婚可合。孕無驚。問行人。有歸程。若養蚕。晚造勝。問疾病。保安寧。謀望者。合心情|風水:平穩亦無礙;遺失:細查亦可得;自身:平安無病來;天時:晴和如人意;出行:歸結有可喜
+17|月下追賢|中吉|秋水蒹葭白露盈盈庭月色浸階清清風吹動馬鈴響響接晨鐘不斷聲|名可望。財不大。婚亦宜。病無害。蚕與畜。亦無礙。宅平常。行無阻。問六甲。求神助。謀望者。謹慎可|風水:平局皆無礙;遺失:尋之亦可得;自身:修善愈平安;天時:平常便可喜;出行:無補亦無傷
+18|包公訪李后|下下|杜鵑啼血淚悲聲聲怨霜寒夢乍驚驚動異鄉為異客客心更觸故園情|蚕與畜。有損傷。孕有驚。婚不良。財難得。宅有殃。行人遠。未回鄉。問疾病。宜禱禳。若謀望。總不祥|風水:恐有損丁財;遺失:追尋亦難得;自身:運滯當要防;天時:風色多不美;出行:往來皆可憂
+19|伏羲畫八卦|中吉|乾卦三連號太陽潛龍勿用第一章其中爻象能參透百福駢臻大吉昌|孕生女。病宜禱。名與利。遲乃到。蚕與婚。謹慎好。行人遲。歸有路。若謀望。勿輕躁。宅平常。積善補|風水:壞處當更改;遺失:求之勿心急;自身:和平無病生;天時:風雨及時宜;出行:火氣勿太猛
+20|裴度為相|中平|天上仙花難問種人間塵事幾多更前程已註公私簿罰賞分明濁與清|名與利。附之命。病審醫。婚未定。宅平安。要修省。孕與蚕。作福吉。行欲歸。難定日。若謀望。修善得|風水:全憑心地發;遺失:求之終可得;自身:禍福自己求;天時:隨我意轉移;出行:如修善可去
+21|武則天賞花|中吉|天外紅霞如抹錦檻邊桃杏鬥新粧盈眸煙熳誰居首美酒頻斟且酌量|名與利。莫躁求。行漸至。病漸瘳。婚綏約。孕無憂。蚕與畜。要子細。若謀望。躁則敝。宅將興。修善貴|風水:小小發丁財;遺失:不久亦可得;自身:身體亦平安;天時:晴必多于雨;出行:子細亦有利
+22|王維別友|下下|秋水依人各一方天南地北恨偏長相思試問憑誰寄不盡悽涼狂斷腸|孕不吉。病擇醫。宅蹇滯。行人遲。蚕與畜。費心機。名利無。婚不宜。若謀望。要待時。凡有事。當禱祈|風水:運滯未能發;遺失:阻隔尋不得;自身:勞心未平安;天時:多不如人意;出行:去之必不利
+23|盧生夢|中平|邯鄲一夢幻無邊數載身榮是熟眠換卻錦衣歸故里睡醒還記在心田|名與利。似虛花。婚不成。孕亦假。宅平常。行人賒。蚕小利。病未瘥。謀望凶。徒咨嗟。速修善。實榮華|風水:無脈空有局;遺失:尋之空費力;自身:暗病恐有之;天時:似好而實非;出行:得之恐復失
+24|劉基歸隱|下下|詩酒琴棋可解愁座中無客樂難休或彈或唱誰知美吟飲雖多亦是憂|財與貴。忌貪謀。孕不吉。婚莫求。行人滯。病未瘳。問謀望。恐惹愁。蚕與畜。亦可憂。論家宅。德宜修|風水:砂水不灣抱;遺失:尋之無人力;自身:修善免憂愁;天時:無雨亦可憂;出行:去之惹禍愁
+25|朱洪武登基|上吉|群山擾擾朝中嶽有似為臣列鵠班拱立兩行齊整肅自居此地豈無歡|名與利。求必應。病遇醫。葯有靈。行人回。家道盛。孕生男。婚可訂。畜與蚕。造造勝。問謀望。往有慶|風水:此地必發貴;遺失:求之可以得;自身:積善大吉昌;天時:風雨皆應期;出行:處處有貴人
+26|孫夫人歸國|中平|花影遲遲侵砌上遙知月鏡掛長空忽聞鶴唳聲淒切早買歸舟返里中|蚕與畜。財亦有。一見凶。即修手。謀望事。看時勢。早修功。遲必敝。有病者。早積功。問家宅。亦相同。行將歸。孕有驚|風水:見凶即要避;遺失:難得莫強求;自身:修善可安安;天時:好不能到尾;出行:到底要知機
+27|越王復國|中平|天晴粉蜨翻衣曬又看庭前蟻陣排隊伍整齊趨或退時開時合思何佳|財微有。宅平常。婚可合。孕無妨。蚕與畜。亦無傷。病可醫。行歸遲。問謀望。要觀時。進與退。要知機|風水:平穩無妨礙;遺失:或可以尋得;自身:出入亦平安;天時:風雨合人意;出行:去之亦無妨
+28|潯陽江聽琵琶|中平|船泊潯陽月夜天琵琶一曲動人憐相思兩地憑誰寄白雪摧人上鬢巔|功名無。求財難。行未至。宅艱辛。問婚姻。非美婦。孕生女。病遲愈。蚕與畜。得利微。凡謀望。無可取|風水:失運未能發;遺失:尋之亦不得;自身:修善可平安;天時:世情無可喜;出行:歸結恐不美
+29|張翰思鱸|中吉|鱸魚作膾菊花黃美酒盈樽近晚涼泛棹正當潮上候這般佳景樂無央|名可望。人發財。婚姻合。行人回。問六甲。必男胎。蚕與畜。美利來。宅平穩。病無災。謀望事。任取栽|風水:丁財兩字穩;遺失:尋之得原物;自身:交秋亦平安;天時:交秋更可喜;出行:一路都順利
+30|貴妃自縊|下下|傾國傾城媚百生六宮粉黛盡無名馬嵬山下魂飛去至今明皇長恨情|宅受劫。求財難。行不歸。病未安。蚕與畜。皆不利。婚不成。孕恐墮。謀望凶。事多礙。凡有事。當祈禱|風水:丁財俱恐退;遺失:尋之無可得;自身:運滯實艱辛;天時:淒涼實可悲;出行:不吉實難言
+31|蔡中興遇險|下下|狂風驟雨打船篷溪畔桃花盡落紅驚醒漁翁春夢熟持篙撐去失西東|財耗散。孕有驚。宅不吉。病未寧。畜與蚕。得利輕。行人遠。無歸程。問婚姻。不可成。若謀望。勿妄行|風水:受煞有損害;遺失:無路尋不得;自身:身子不平安;天時:禍來宜閃避;出行:去之總不宜
+32|蘇武牧羊|中平|十九年前海上辛節旄彫敗逐沙塵餐毛嚼雪誰憐我惟有羊兒作伴群|財難求。名不遂。行歸遲。宅還滯。問謀望。事難濟。畜與蚕。宜子細。問六甲。當禱神。病修善。免痛苦|風水:地運當塞滯;遺失:求之亦難得;自身:作福可免病;天時:憂勞恐不止;出行:去之總不利
+33|孔明借東風|中平|曹操雖有深謀計智慧難瞞諸葛侯試看東風都可借更能流馬木成牛|宅平常。財難有。蚕與畜。慎看守。孕與病。禱神佑。問婚姻。非吾偶。行人歸。要遲久。謀望事。恐難就|風水:難以發丁財;遺失:難以得原物;自身:略有不平安;天時:難以測天機;出行:亦恐有不美
+34|虞舜耕田|中吉|大舜雖耕在歷山心常孝順兩囂頑田中之象同家象善惡分明即此間|宅平常。善則昌。病愈遲。善可醫。蚕與畜。善則勝。欲求財。善乃來。謀望吉。善乃得。孕有喜。善所致。結婚姻。善為親。行可以。又可思|風水:福人留福地;遺失:當盡人事尋;自身:積善得平安;天時:善者天祐之;出行:去之亦可喜
+35|唐僧取經|中吉|天將降任此其人筋骨先勞苦彼身莫謂佳景來可易貧窮富貴有前因|名與利。求實難。蚕與畜。盡力看。病漸愈。婚有緣。論家宅。要積德。謀望者。當審擇。問行人。難揣測|風水:時到自然發;遺失:尋之宜勉力;自身:修善得平安;天時:豐耗無定期;出行:進退當慎之
+36|薛平貴歸家|中吉|此事真如到岸船何憂風水不相全舉頭便見前村落屋角斜陽爨已煙|名利就。兩相全。孕無礙。病漸痊。宅有福。行人旋。蚕有利。婚可聯。問謀望。有機緣。六畜吉。宜向前|風水:丁財漸漸來;遺失:尋之將可得;自身:出入皆平安;天時:風雨俱合意
+37|東坡遊赤壁|上吉|月夜秋江下釣鰲魚形恰似四腮鱸家藏舊釀堪盈斗與友飛觴盡倒壺|婚姻合。家宅興。病必愈。利即盈。蚕桑美。畜養成。問六甲。有子生。問行人。有歸程。論謀望。百事亨|風水:富貴兼丁財;遺失:尋之即可得;自身:無病兼發達;天時:豐稔大可喜;出行:到處皆合意
+38|陶淵明辭官|中吉|歸去來兮仕官閒室堪容膝亦為安南窗寄傲談詩酒倚杖徘徊飽看山|名不成。財漸至。畜與蚕。微微利。婚不合。孕生女。病可醫。行人至。問謀望。要知機。宅平安。修善美|風水:平穩無妨礙;遺失:尋之或可得;自身:修善有平安;天時:平局無大喜;出行:總要曉趨避
+39|夷齊讓國|中吉|夷齊不忍食周粟兄弟心甘採蕨餐讓國名應垂萬古可憐餓倒首陽山|婚不宜。財難得。畜與蚕。宜勉力。宅平安。病險極。問六甲。無喜色。問行人。無阻隔。若謀望。少合式|風水:運滯未能發;遺失:難得回原物;自身:失運恐難辛;天時:有事亦難知;出行:去之恐不利
+40|俞伯牙碎琴|下下|人世知音能有幾碎琴都為子期亡墳前灑盡千行淚隔別陰陽各一方|行阻滯。病留連。孕不吉。婚無緣。蚕與畜。少利錢。求財空。慎著鞭。謀望事。勿向前。宅修德。乃安然|風水:失運恐有害;遺失:尋之亦不得;自身:多事恐傷神;天時:可憂無可喜;出行:去亦無一利
+41|張騫獲寶石|中吉|浮槎月夜到天河曾見天姬織錦梭石得支機人罕識那知此寶出雲窩|婚可合。行將至。問養畜。亦得利。孕生女。病可祈。宅無礙。積善宜。求財者。亦合時。謀望事。當勉力|風水:時到自然發;遺失:尋之亦可得;自身:身體亦平安;天時:得利無人知;出行:去之亦無妨
+42|王允獻貂嬋|中吉|月明散步到花欄無策焉能勦滅奸幸有貂嬋思定國英雄難過美人關|蚕與畜。今雖損。若遇時。即返本。財可得。病必愈。婚可合。行必旋。謀望吉。宅安然。孕生女。女必賢|風水:避煞方得吉;遺失:尋貴人可得;自身:先勞而後安;天時:苦中有滋味;出行:防避小人舌
+43|韓文公被貶|下下|祇因直諫怒天顏晝夜難離在馬鞍主僕奔忙神亦倦更加雪重擁藍關|財不遂。名未通。病難愈。謀望凶。畜與蚕。亦無功。行有阻。婚莫同。孕不安。宅運滯。凡有事。宜仔細|風水:丁財俱塞滯;遺失:尋之亦難得;自身:辛苦多是非;天時:防少晴多雨;出行:事勢甚難成
+44|唐天寶評花|中吉|滿園春色鬥新粧意似爭妍奪國香到底是誰居麗首牡丹艷冠百花場|求名遂。求財得。畜與蚕。均有利。病亦安。孕可喜。宅平安。行人至。問婚姻。亦合宜。謀望吉。勿思疑|風水:得運將發達;遺失:求之將可得;自身:身子心平安;天時:凡事合人意;出行:去之亦合宜
+45|王質遇仙|中平|採樵不意到雲天閒看敲棋二老仙柯爛也思歸故里山中七日世千年|財可有。婚可成。蚕與畜。得利輕。病可醫。行人遲。問謀望。亦合宜。問家宅。亦平安。孕無礙。心略寬|風水:平常亦無礙;遺失:求之或可得;自身:修善有仙緣;天時:平淡無甚喜;出行:進退任人意
+46|左慈戲曹操|下下|黃柑數盒獻曹公剖看原來肉盡空怒動奸雄揮鐵斧奔忙身入萬羊中|病有險。孕有驚。蚕與畜。少收成。名不遂。財不就。問行人。無歸程。婚不諧。宅未寧。謀望事。不可行|風水:妄動恐犯煞;遺失:強求生事非;自身:修善可消劫;天時:世變實可悲;出行:去之大不利
+47|魯肅索荊州|中平|遙遙千里來西蜀欲問荊州那日還劉備不言聲淚下自思無策轉吳間|財難得。病愈遲。蚕與畜。得利微。婚不合。孕禱祈。宅平常。積善宜。問行人。要待時。謀善事。當細思|風水:失運恐破財;遺失:勞苦恐難得;自身:有事多憂愁;天時:劫氣甚可悲;出行:去之總不美
+48|卓文君賣酒|中平|繡閣聽琴自起思改粧夤夜最歡時可憐沽酒臨邛市才子佳人兩下廚|孕生女。病求醫。行有阻。婚不宜。蚕微利。亦有之。問謀望。要待時。宅無礙。善當為。求財者。得微利|風水:氣運未當發;遺失:尋之恐未得;自身:自在中有苦;天時:豐熟有虛耗;出行:去之亦無益
+49|司馬相如題橋|中吉|十年窗下苦功成有志難舒願不輕試看題橋十三字生平心誓確鍾情|財可求。病可醫。行人歸。漸有期。宅平穩。孕可喜。謀望事。當奮志。蚕與畜。微有利。問婚姻。皆合意|風水:漸漸當興發;遺失:苦心尋可得;自身:由苦而後甘;天時:淡泊變滋味;出行:有志事竟成
+50|伍員出關|中吉|記得當年伍子胥潛奔難渡幸逢漁欲將寶劍相持贈大義交朋卻不辭|名與利。莫貪謀。謀望事。莫強求。病求醫。亦無憂。蚕與畜。慎看守。問行人。要遲久。宅修福。昌厥後。問六甲。慎綢繆。問婚姻。有佳偶|風水:平穩無妨礙;遺失:尋之亦可得;自身:修善自平安;天時:淡中亦有味;出行:戒貪方可去
+51|成王剪桐封弟|中平|剪桐雖是作兒嬉封弟成圭語不移何以偽為成實事言因無戲故如斯|婚不合。財不大。謀望平。當子細。宅平安。蚕無敝。病可醫。孕無礙。行人歸。恐遲滯。問六畜。無損壞|風水:平局亦無礙;遺失:尋之恐難得;自身:無補亦無傷;天時:有美有不美;出行:錯有錯便宜
+52|盤古開闢天地|中平|上清下濁成天地清濁相凝便作人爾欲籤求明白事且將三等細分明|蚕與畜。利平平。病可醫。財不盈。婚莫定。孕無驚。謀望事。謹慎行。行人歸。時難定。問家宅。積善興|風水:全靠陰騭發;遺失:得不得未定;自身:行善必平安;天時:即管用人事;出行:善吉惡不宜
+53|馮煖客孟嘗|中吉|珠履三千客孟嘗誰人識得有鷹揚其中彈鋏歸來者便是英雄志莫量|謀望事。費商量。行人滯。病禱禳。宅無礙。婚亦良。蚕小利。畜無傷。問六甲。亦無妨。名與利。善可望|風水:方向要合度;遺失:求之要得法;自身:調養要得宜;天時:勢色要趨避;出行:扶助要得人
+54|莊周夢蝶|中平|莊子酣眠成蜨夢翩翻飛入百花叢天香採得歸來後猶在高床暖枕中|財難得。宅平常。謀望事。謹慎良。問六甲。亦無傷。蚕與畜。亦無妨。行未到。婚莫同。病可愈。待時通|風水:穩暖無妨礙;遺失:尋之未必得;自身:修善愈平安;天時:事勢有改移;出行:穩陣方可去
+55|吳隱之投沉香|中平|浦號沈香遺舊恨渡江猶憶古人心可憐當日辭官去雖有馨留不易尋|財利有。貪則敝。謀望事。當子細。病可醫。行遲滯。畜與蚕。無損壞。孕平常。婚莫定。宅修善。福自至|風水:吉地不易得;遺失:尋之恐難得;自身:清潔平安好;天時:佳景令人思;出行:為善者可去
+56|呂祖桃木劍|中吉|安知此劍不成龍見水都應出袖中他日飛騰千萬里上空妖嬌有雲從|名可望。財可求。蚕與畜。有利收。病必愈。婚合謀。家宅吉。孕無憂。行人歸。不待久。謀望吉。好綢繆|風水:此地終必發;遺失:得之要待時;自身:漸漸將發達;天時:後路更可喜;出行:結局更合意
+57|獨占花魁|中吉|小樓春雨聲初歇彳亍街頭屐不停忽聽賣花人入巷一枝買得慢慢行|謀望事。要子細。病與孕。慎為貴。婚可求。行漸至。畜與蚕。得利微。宅平安。將有喜。問求財。少為美|風水:想發不能急;遺失:慢慢尋可得;自身:謹慎自平安;天時:有時可合意;出行:觀雨晴亦佳
+58|蹇叔哭師|下下|秦師大敗在殽山三帥皆擒盡放還蹇叔諫言因不聽倒戈捨甲返秦間|病有險。孕多驚。行人滯。宅未寧。畜與蚕。多不成。財不利。亦無名。謀望事。不可行。問婚姻。無子生|風水:丁財俱恐退;遺失:強求亦不得;自身:修善乃無災;天時:劫運恐難免;出行:有敗而無成
+59|西施澣紗|下下|浣溪紗女美無雙媚至吳王國破亡最惱東施效顰笑山雞豈可勝鸞凰|財破耗。行未到。蚕與畜。利亦無。孕與病。皆身苦。宅不安。積善補。問婚姻。更不好。謀望事。不宜做|風水:失運勿亂動;遺失:求之亦難得;自身:安份保平安;天時:恐有不合意;出行:去之煩惱生
+60|李白醉和番書|中平|和番醉筆似雲煙日在長安酒店眠倘遇唐皇頒令召重呼不上木蘭船|財得少。宅平安。蚕與畜。亦無傷。行未至。病無妨。婚亦合。名未揚。問六甲。無驚慌。謀望事。細參詳|風水:平常無損害;遺失:尋之恐難得;自身:無事小神仙;天時:無喜亦無憂;出行:凡事勿貪謀
+61|十二金牌召岳飛|下下|十二金牌速召回奸雄設計幾時灰可憐一旦功勞散老少扶車不斷哀|財破耗。行未到。蚕與畜。利亦無。孕與病。皆辛苦。宅不安。積善補。問婚姻。更不好。謀望事。不宜做|風水:損丁兼破財;遺失:難以得原物;自身:防疾病是非;天時:辛苦而無功;出行:防小人口舌
+62|孔子守道|中平|美玉於斯韞匱藏休求善價費商量沽之亦可隨相待此物何須自看常|行未到。病愈遲。孕無礙。婚不宜。蚕與畜。利亦微。欲求財。要依理。謀望事。宜待時。家宅吉。勉修為|風水:將來必發達;遺失:尋之勿心急;自身:積善自發達;天時:氣候漸可喜;出行:合時乃可去
+63|顏回樂道安貧|中吉|陋巷簞瓢不足愁旁人見此甚為憂不知樂道忘貧乏亞聖芳名萬古留|家宅吉。病可醫。謀望事。謹慎宜。名與財。勿妄思。婚可合。行漸歸。蚕與畜。利可得。問六甲。無驚嚇|風水:平穩無妨礙;遺失:尋之尚未得;自身:安份自平安;天時:知命可無憂;出行:苦中有甘味
+64|孟之反殿師|中吉|奔殿須知上古人入門策馬不誇能敗師誰肯甘從後託謂鳴驄畏苦辛|名利無。行歸遲。畜與蚕。慎有利。孕與病。當禱祈。能修善。家宅美。問婚姻。總不宜。謀望者。當待時|風水:丁財不甚發;遺失:尋之恐不得;自身:修善乃平安;天時:世界不甚美;出行:去恐有不利
+65|後主失國|下下|隋滅陳時戟伐紛都因妖媚閉明君東奔西赴無藏息井裡胭脂隱玉人|孕有驚。病有險。謀望凶。必應驗。畜與蚕。有損害。問行人。多阻礙。婚莫成。財不遂。宅欲安。修善果|風水:傷丁兼耗財;遺失:難以得原物;自身:修善乃消災;天時:悽慘無可避;出行:敗壞莫扶持
+66|羲之會群賢|上吉|蘭亭雅會眾群賢曲水流觴舍管絃天朗氣清風惠暢茂林修竹樂怡然|行即至。財即盈。蚕與畜。有修成。能修善。更揚名。病即愈。宅安寧。謀望事。萬事興。婚可定。孕無驚|風水:丁財皆可發;遺失:原物可尋得;自身:安樂多貴人;天時:豐稔大可喜;出行:往來皆吉利
+67|項羽被困|中平|人雖勇力不能當莫恃英雄獨冠場可挾泰山超北海身心猶貴重存亡|謀望事。要參詳。孕無礙。病禱禳。蚕與畜。謹慎良。行未至。宅平常。婚不合。名未揚。財難得。積善昌|風水:美中防不足;遺失:原物恐難得;自身:謹慎可無礙;天時:防有意外事;出行:凡事不可恃
+68|姜太公得志|中吉|久抱凌雲志未舒荷竿渭水釣遊魚文王千里求賢士滅紂興周任意如|財可得。病可醫。婚姻合。行必歸。蚕與畜。皆有利。宅平常。孕可喜。問謀望。亦相宜。問功名。亦合時|風水:此地將發貴;遺失:尋之或可得;自身:交運漸興發;天時:苦盡而甘來;出行:去之亦順利
+69|韓文公祭鱷魚|中吉|忠義存心官十載年豐民樂惠難忘鱷魚毒害都能息禱告長江北海王|病與孕。當禱禳。蚕與畜。無損傷。問謀望。亦無妨。宅平穩。積善昌。行人動。漸回鄉。求財者。大吉昌|風水:好心得好地;遺失:原物或可得;自身:修善可平安;天時:善者多順利;出行:忠直者可去
+70|塞翁失馬|中平|可比當年一塞翁雖然失馬半途中不知禍福真何事到底方明事始終|問謀望。不甚宜。孕與病。當禱禳。蚕與畜。當慎之。行未至。財亦微。問婚姻。不必議。宅安否。難定時|風水:興敗隨時轉;遺失:得失當安命;自身:為善多平安;天時:豐歉未可知;出行:善者不妨去
+71|莊周活鮒|中平|涸轍之中鮒困之窮通自可卜當時若能引得西江水他日成龍也未知|孕有驚。病可醫。財難得。行歸遲。蚕與畜。勉力為。謀望事。當待時。宅運滯。積善宜。若婚姻。不必議|風水:失運未能發;遺失:目下尋未得;自身:運滯要修善;天時:當用人事補;出行:待時方可去
+72|高文定守困|中平|兔兒久待意何如堪嘆愚人獨守株算是無能令我笑不須守舊自拘迂|財難得。行歸遲。謀望事。不可為。蚕與畜。得利微。孕無礙。婚不宜。問疾病。當改醫。宅平安。修善美|風水:平局無可取;遺失:當出法再尋;自身:改過乃平常;天時:有轉機乃吉;出行:去亦不合意
+73|孫霖中狀元|上上|夾道花香襯馬蹄藍袍改換錦衣歸滿街紅粉皆爭羨翹首芳名雁塔題|名大貴。財大利。病即癒。行即至。問六甲。生貴子。家宅旺。有貴氣。蚕獲利。畜亦美。謀望事。大可喜|風水:必發丁財貴;遺失:尋之必可得;自身:平安必發達;天時:豐稔真得宜;出行:事事皆合意
+74|朱買臣分妻|下下|回憶當年運蹇時夫妻反目兩分離名題雁塔歸來後覆水馬頭時否悲|婚不利。財不來。蚕與畜。亦無喜。行未歸。孕有礙。宅運滯。病難醫。謀望凶。多改移。急修善。方可為|風水:此地有損害;遺失:雖尋亦難得;自身:修善可安康;天時:劫數有可能;出行:有厄難扶持
+75|倫文敘戲妻|下下|婚姻起可厭家貧文敘夫妻兩拆分一旦首登龍虎榜戲妻樓墜自身亡|財難得。婚莫成。蚕與畜。少收成。行未至。孕難成。謀望事。不可行。病難愈。宅不寧。速修福。免禍生|風水:丁財多損害;遺失:難得回原物;自身:行善可免災;天時:總不合意人;出行:去之必不美
+76|顏回守困|中平|人能樂道自修身疏水曲肱豈厭貧不義而富且貴者我心都作是浮雲|名與利。勿貪求。蚕與畜。少收利。問行人。未回頭。若婚姻。非佳耦。孕無礙。宅平常。謀望事。枉商量|風水:此地難發財;遺失:尋之亦難得;自身:修善得平安;天時:平常不甚美;出行:淡薄難稱意
+77|公冶長入獄|中平|鳥語能通公冶長南山有個虎馱羊其身雖在於縲絏到底非關自己殃|宅運滯。多是非。婚不合。病可醫。蚕與畜。得利微。孕勿驚。行歸遲。求財難。勿妄為。問謀望。不甚宜|風水:失運勿妄動;遺失:尋之亦不得;自身:防有病口舌;天時:意外有不美;出行:凶多而吉少
+78|曾點論志|上吉|瑟希鏗爾尚留聲春暮時剛春服成冠五六人童六七舞雩歸詠暢幽情|財可得。病無憂。宅安樂。婚可求。蚕與畜。多利收。問行人。即回頭。問六甲。生男子。謀望吉。任你謀|風水:一定發丁財;遺失:又得回原物;自身:平安多貴人;天時:事事如人意;出行:往來皆吉利
+79|鍾馗得道|中平|富貴有如春夢熟世人何苦力爭求任他秉笏當朝立到死惟留土一抔|名與利。勿貪求。病與孕。求神助。蚕與畜。少收成。行未到。婚莫謀。宅平常。德宜修。謀望者。待時候|風水:平常無可取;遺失:尋之亦難得;自身:安份勿勞碌;天時:平淡無可喜;出行:徒勞而無功
+80|樂廣釋疑|中吉|飛觴對舞幾時賒弓影橫杯誤作蛇猜透詩中元妙訣泰來否極事無差|財可得。病可醫。畜與蚕。微有利。孕可喜。行漸至。婚可合。謹慎宜。宅平安。漸得宜。問謀望。亦合時|風水:此地將興發;遺失:尋之或可得;自身:由苦而得甘;天時:半憂半可喜;出行:到底亦無妨
+81|子路拱雉|中吉|山梁雌雉得其時上下飛鳴自樂之色舉須知翔後集作聲三嗅過山欹|財可得。行亦歸。孕與病。當子細。蚕與畜。微有利。謀望事。要知機。問家宅。亦安康。能謹慎。大吉昌|風水:審慎方可用;遺失:尋亦要知機;自身:安樂須防避;天時:事勢有改移;出行:險處要迴避
+82|孔子擊磬|中平|聖人擊磬在於衛誰料過門有荷蕢嗟嘆有心挽道窮可憐日月今將逝|行未歸。病愈遲。蚕與畜。得利微。欲求財。要待時。宅平常。婚不宜。問六甲。當禱祈。謀望者。宜慎之|風水:財滯多口舌;遺失:尋之亦難得;自身:修善免是非;天時:氣運不甚美;出行:防小人口舌
+83|范丹問卜|中平|凡塵身歷幾時閒世事渾如疊疊山既富尚憂無貴子不知花放又花殘|名與利。勿貪求。蚕與畜。亦無憂。行未至。婚莫謀。宅平安。病可療。孕生女。命所招。謀望者。勿紛擾|風水:平穩勿多心;遺失:尋之恐難得;自身:多事便勞神;天時:難得其全美;出行:安份勿貪謀
+84|韓信棄楚歸漢|中吉|滿腹奇才志未沖鐵雞難舉意無容張良指示身投漢項羽烏江命自窮|財可得。病可醫。蚕與畜。均有利。宅平安。行漸至。問六甲。亦歡喜。謀望者。細參詳。有貴人。任前向|風水:此地將自發;遺失:用方尋可得;自身:榮發要待時;天時:先難而後易;出行:無意遇貴人
+85|劉向得志|上吉|太乙燃藜照讀書十年窗下苦功舒揚眉吐氣袍穿錦駟馬高車擁道隨|名可成。財亦得。行人回。家宅吉。問六甲。生貴子。婚宜合。病漸愈。蚕與畜。獲大財。謀望事。貴人來|風水:此地必發達;遺失:尋之亦可得;自身:平安兼發達;天時:豐稔大可喜;出行:往來皆迪吉
+86|侃母迎賓|中平|截髮迎賓否也貧貧中賢婦更何人古今祇有陶侃母所以名留萬代聞|婚可合。病可醫。孕生女。行人歸。畜與蚕。皆有利。財可求。家宅美。問功名。亦可求。謀望事。好綢繆|風水:平穩無妨礙;遺失:尋之或可得;自身:苦盡而甘來;天時:淡中有真味;出行:去之亦合時
+87|陸士龍會客|中平|會談華座逞英雄究竟誰人秉大公一云日下荀鳴鶴一說雲間陸士龍|問家宅。防是非。蚕與畜。得利微。財難求。行未至。孕無礙。病可醫。問婚姻。當另議。謀望事。不甚宜|風水:當細心審擇;遺失:亂覓尋不得;自身:防小人口舌;天時:事勢須防避;出行:恐惹出是非
+88|花木蘭從軍|中吉|替父從軍膽氣雄鬚眉巾幗幾人同以身報國忠而孝笑煞當時眾鉅公|財可得。病可醫。孕生女。行漸歸。問婚姻。配合宜。宅平安。勝舊時。蚕與畜。亦有利。謀望事。合設施|風水:此地有可取;遺失:力尋必可得;自身:義氣得美名;天時:苦中有甘味;出行:去之無防礙
+89|吳季子掛劍|下下|他鄉遠歷佩魚腸誰料徐君意欲將既返願為相贈答且懸樹下表情長|病難醫。人有險。行不歸。婚有變。宅不安。各修善。謀望事。無應驗。蚕與畜。小入息。財強求。必貧極|風水:此地傷丁財;遺失:尋亦空費力;自身:運滯極艱辛;天時:勞苦無所益;出行:講義不講財
+90|紅拂女私奔|中平|細整殘粧夜欲奔座中李靖更何人那知虯髯情鐘處拔劍三回未敢陳|財難得。病可醫。蚕與畜。得利微。孕有驚。行歸遲。宅平常。婚不宜。謀望事。不可為。問功名。要待時|風水:平淡無可取;遺失:雖尋亦難得;自身:修善保平安;天時:喜中有不美;出行:財利勿相爭
+91|懷德招親|上上|蟾宮月殿桂飄香玉篋團圓萬里光六水三山歸鏡裏無瑕一片掛窮蒼|病即愈。行人回。蚕與畜。獲大財。問六甲。貴子胎。家宅旺。如求財。婚姻合。諧唱隨。謀望事。無阻礙|風水:發丁貴與財;遺失:尋即得原物;自身:平安兼順利;天時:事事合人意;出行:處外亦可喜
+92|孔子聞韶樂|中吉|至聖周遊列國行在齊得聽奏樂聲三月不知嘉肉味善哉大道可功成|婚可合。病可醫。財亦有。行漸至。畜與蚕。皆有利。問六甲。亦無驚。問家宅。亦安寧。謀望事。有功程|風水:可以發丁財;遺失:尋之亦可得;自身:調養要得宜;天時:風雨合人意;出行:去之亦大利
+93|孔子聞衛樂|下下|鄭衛之音不忍聽淫風敗俗國將傾今人深入迷津路所奏全非古樂聲|財難求。病愈遲。行人阻。婚不宜。蚕與畜。亦無利。謀望事。不可為。孕有驚。宜禱祈。宅不吉。宜慎之|風水:此地損丁財;遺失:雖尋不能得;自身:有阻障不安;天時:世界總不美;出行:敗壞難扶持
+94|劉琦奔江夏|中平|一窟難容兩虎兒乘風別嶺各棲之名山自守為巢穴可免傷殘後悔遲|蚕與畜。謹慎良。病與孕。恐有傷。宅有礙。積善昌。財難得。婚不詳。行人滯。未回鄉。謀望事。枉商量|風水:有地要另遷;遺失:尋之恐難得;自身:恐小人口舌;天時:風雨不合宜;出行:有害要迴避
+95|女媧煉石補天|中平|功勤一簣可成山由少而多莫憚煩作事畏辛今汝畫補天煉石亦無難|宅平常。積善昌。病可醫。孕禱禳。蚕與畜。亦無妨。行未至。婚不良。求財者。亦平常。謀望事。當自強|風水:無發要另尋;遺失:尋之要用力;自身:保重便平安;天時:辛苦有微利;出行:勤苦乃成功
+96|文姬思漢|中平|羌笛頻吹韻更悲異鄉作客觸歸思南來孤雁如憐我煩寄家書轉達知|行未至。病愈遲。宅運滯。婚不宜。蚕與畜。得利少。孕有礙。財未至。謀望事。要待時。凡作事。多滯機|風水:丁財俱蹇滯;遺失:尋之亦難得;自身:有阻隔不安;天時:風雨不如意;出行:徒勞而無功
+97|康順釣魚|中平|憑欄晚眺倚南樓滿目風光景色幽一葉小舟頻下餌漁翁釣得有魚否|財難得。病愈遲。畜與蚕。得利微。謀望事。宜慎之。孕無礙。行未至。問婚姻。另擇良。宅平常。積善昌|風水:此地無可取;遺失:尋之無所得;自身:辛苦未得安;天時:勤苦不如意;出行:苦中有滋味
+98|管鮑分金|中平|入山種玉嫌田狹掘地尋金厭客多富貴貧窮天注定世人何苦力奔波|畜與蚕。得利微。孕無驚。行遲歸。宅平穩。婚不宜。財難得。病可醫。問謀望。願難償。勞無益。早收場|風水:想發丁財難;遺失:尋之恐費力;自身:知足便無憂;天時:得失有天意;出行:辛苦無所益
+99|韓文公遇雪|中平|雪擁橋頭馬不前風狂漁父莫開船水流花謝人誰惜早立堅心志勿偏|行未至。病慎醫。財難得。婚不宜。謀望事。要待時。孕無礙。名亦遲。蚕與畜。少利錢。宅平常。結善緣|風水:此地當凶煞;遺失:尋之要著力;自身:阻隔未平安;天時:風色有不美;出行:去必惹禍歸
+100|唐明皇擊鼓催花|中吉|百花競放賀陽春萬物從今盡轉新末數莫言窮運至不知否極泰來頻|宅運轉。善財昌。病漸愈。婚亦良。行漸至。孕無傷。畜與蚕。亦有利。求財者。漸得意。謀望事。大可喜|風水:漸漸發丁財;遺失:尋之亦可得;自身:衰極轉好運;天時:絕處有生機;出行:貧賤轉富貴
+`;
+  const STICKS = RAW.trim().split('\n').map(line => {
+    const [n, t, g, v, x, y] = line.split('|');
+    const ph = x.split('。'), pairs = [];
+    for (let i = 0; i < ph.length; i += 2) pairs.push([ph[i], ph[i + 1]]);
+    return { n: +n, t, g, p: [v.slice(0, 7), v.slice(7, 14), v.slice(14, 21), v.slice(21, 28)], pairs, ys: y.split(';').map(kv => kv.split(':')) };
+  });
+  const ADV = {
+    '事業':{上上:'大展拳腳之時，可主動爭取機會。',上吉:'工作漸入佳境，多與人合作更順。',中吉:'穩中求進，先打好基礎再求突破。',中平:'暫時平淡，做好本分，勿輕易轉換跑道。',下下:'宜守不宜攻，重大決定可稍緩，先觀察形勢。'},
+    '財運':{上上:'財路亨通，但仍要量入為出。',上吉:'正財穩定，偏財莫貪。',中吉:'收入平穩，宜儲蓄，細水長流。',中平:'財運平平，開支要有計劃。',下下:'守財為上，避免借貸同投機。'},
+    '姻緣':{上上:'良緣可期，有情人易成眷屬。',上吉:'感情和順，多溝通更添甜蜜。',中吉:'緣份要慢慢培養，真誠相待。',中平:'緣未成熟，先充實自己。',下下:'感情宜冷靜，勿因一時衝動作決定。'},
+    '健康':{上上:'身心暢旺，保持良好作息。',上吉:'精神不錯，適量運動更佳。',中吉:'注意飲食作息，小毛病及早調理。',中平:'宜多休息，勿過勞。',下下:'要多留意身體，如有不適請及早求醫。'},
+    '家宅':{上上:'家宅興旺，老少平安。',上吉:'家人和睦，喜事臨門。',中吉:'家中安穩，多關心長輩。',中平:'家事瑣碎，互相體諒自然和順。',下下:'家中宜和氣，有爭執退一步海闊天空。'},
+    '學業':{上上:'金榜有望，努力必有回報。',上吉:'讀書得法，成績漸進。',中吉:'基礎要穩，勤溫習自有進步。',中平:'進度稍慢，調整方法再努力。',下下:'暫遇瓶頸，勿灰心，請教師長會有幫助。'},
+    '出行':{上上:'出行順利，一路平安。',上吉:'旅途愉快，有意外之喜。',中吉:'出行平穩，行程預早安排。',中平:'出行宜小心，留意天氣同交通。',下下:'如非必要可延後，出門多留意安全。'}
+  };
+  const CATS = Object.keys(ADV);
+  const DIG = '〇一二三四五六七八九';
+  const cn = n => n === 100 ? '一百' : n <= 10 ? (n === 10 ? '十' : DIG[n]) : n < 20 ? '十' + DIG[n - 10] : DIG[Math.floor(n / 10)] + '十' + (n % 10 ? DIG[n % 10] : '');
+  const rand = n => { try { return crypto.getRandomValues(new Uint32Array(1))[0] % n; } catch (e) { return Math.floor(Math.random() * n); } };
+
+  /* ---------- build scenery details ---------- */
+  const others = $('others');
+  for (let i = 0; i < 14; i++) {
+    const x = 68 + i * 4.8, top = 58 + ((i * 7) % 5) * 3, lean = (x - 100) * 0.12;
+    const l = document.createElementNS(NS, 'line');
+    l.setAttribute('x1', x); l.setAttribute('y1', 86); l.setAttribute('x2', (x + lean).toFixed(1)); l.setAttribute('y2', top);
+    others.appendChild(l);
+    const c = document.createElementNS(NS, 'circle');
+    c.setAttribute('cx', (x + lean).toFixed(1)); c.setAttribute('cy', top); c.setAttribute('r', 1.4);
+    c.setAttribute('fill', '#FF9A3C'); c.setAttribute('stroke', 'none'); c.setAttribute('class', 'tip');
+    c.style.animationDelay = `${(-(i * 0.29) % 1.6).toFixed(2)}s`;
+    others.appendChild(c);
+  }
+  const tubeSticks = $('tubeSticks');
+  for (let i = 0; i < 18; i++) {
+    const x = 62 + i * 4.4 + (i % 2) * 1.5, top = 30 + ((i * 7) % 5) * 7, lean = (x - 100) * 0.18;
+    const t = 8 / (128 - top);
+    const g = document.createElementNS(NS, 'g');
+    g.setAttribute('class', 'st'); g.style.setProperty('--d', `${-(i * 0.037).toFixed(3)}s`);
+    g.innerHTML = `<line x1="${x}" y1="128" x2="${(x + lean).toFixed(1)}" y2="${top}" stroke="#D9B070" stroke-width="4" stroke-linecap="round"/>` +
+      `<line x1="${(x + lean * (1 - t)).toFixed(1)}" y1="${top + 8}" x2="${(x + lean).toFixed(1)}" y2="${top}" stroke="#A8261C" stroke-width="4" stroke-linecap="round"/>`;
+    tubeSticks.appendChild(g);
+  }
+
+  /* ---------- sound (synthesised, no files) ---------- */
+  let actx = null, noiseBuf = null, muted = false;
+  function audio() {
+    if (muted) return null;
+    try {
+      if (!actx) {
+        const C = window.AudioContext || window.webkitAudioContext; if (!C) return null;
+        actx = new C();
+        const len = actx.sampleRate; noiseBuf = actx.createBuffer(1, len, actx.sampleRate);
+        const d = noiseBuf.getChannelData(0); for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
+      }
+      if (actx.state === 'suspended') actx.resume();
+    } catch (e) { return null; }
+    return actx;
+  }
+  function burst(freq, dur, gain, q) {
+    const a = audio(); if (!a) return;
+    const t = a.currentTime, s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    s.buffer = noiseBuf; f.type = 'bandpass'; f.frequency.value = freq; f.Q.value = q;
+    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    s.connect(f).connect(g).connect(a.destination); s.start(t, Math.random() * .5, dur + .02);
+  }
+  const rattle = () => { burst(1800 + Math.random() * 1600, .04, .45, 8); if (Math.random() < .5) setTimeout(() => burst(2300 + Math.random() * 1200, .03, .3, 8), 16); };
+  function knock(f) {
+    const a = audio(); if (!a) return;
+    const t = a.currentTime, o = a.createOscillator(), g = a.createGain();
+    o.type = 'triangle'; o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * .7, t + .08);
+    g.gain.setValueAtTime(.55, t); g.gain.exponentialRampToValueAtTime(.0001, t + .15);
+    o.connect(g).connect(a.destination); o.start(t); o.stop(t + .17);
+    burst(f * 3, .05, .35, 3);
+  }
+  function chime() {
+    const a = audio(); if (!a) return;
+    const t = a.currentTime;
+    [[523.25, 1, .26], [1318, .5, .1], [2093, .35, .06]].forEach(([f, d, v]) => {
+      const o = a.createOscillator(), g = a.createGain();
+      o.type = 'sine'; o.frequency.value = f;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + .01); g.gain.exponentialRampToValueAtTime(.0001, t + 2.6 * d + .4);
+      o.connect(g).connect(a.destination); o.start(t); o.stop(t + 3.2);
+    });
+  }
+  function whoosh() {
+    const a = audio(); if (!a) return;
+    const t = a.currentTime, s = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain();
+    s.buffer = noiseBuf; f.type = 'lowpass';
+    f.frequency.setValueAtTime(400, t); f.frequency.linearRampToValueAtTime(1600, t + .25); f.frequency.linearRampToValueAtTime(500, t + .7);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.22, t + .2); g.gain.exponentialRampToValueAtTime(.0001, t + .75);
+    s.connect(f).connect(g).connect(a.destination); s.start(t, 0, .8);
+  }
+  const vib = p => { try { if (navigator.vibrate) navigator.vibrate(p); } catch (e) {} };
+  muteBtn.addEventListener('click', () => {
+    muted = !muted; muteBtn.setAttribute('aria-pressed', String(muted)); muteBtn.setAttribute('aria-label', muted ? '開聲' : '靜音');
+    if (!muted) audio();
+  });
+
+  /* ---------- phone shaking (where the browser allows it) ---------- */
+  let motionSeen = false, motionAt = 0, lastMag = null;
+  function onMotion(e) {
+    const a = e.accelerationIncludingGravity || e.acceleration;
+    if (!a || a.x == null) return;
+    motionSeen = true;
+    const m = Math.hypot(a.x || 0, a.y || 0, a.z || 0);
+    if (lastMag !== null && Math.abs(m - lastMag) > 5) motionAt = performance.now();
+    lastMag = m;
+  }
+  function enableMotion() {
+    try {
+      if (typeof DeviceMotionEvent === 'undefined') return;
+      if (typeof DeviceMotionEvent.requestPermission === 'function') {
+        DeviceMotionEvent.requestPermission().then(r => { if (r === 'granted') window.addEventListener('devicemotion', onMotion); }).catch(() => {});
+      } else window.addEventListener('devicemotion', onMotion);
+    } catch (e) {}
+  }
+
+  /* ---------- flow ---------- */
+  const STEPS = ['ask', 'incense', 'pray', 'shake', 'cup', 'result'];
+  ['問事', '上香', '稟告', '搖籤', '擲杯', '解籤'].forEach(t => { const li = document.createElement('li'); li.textContent = t; stepsEl.appendChild(li); });
+  const S = { cat: null, n: 0, throws: 0 };
+  let stepId = 0, flipIv = 0, shakeRaf = 0, holding = false, meter = 0, shakeLast = 0, nextClick = 0;
+
+  function later(fn, ms) { const id = stepId; setTimeout(() => { if (id === stepId) fn(); }, ms); }
+  function btn(label, cls, fn) { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn ' + cls; b.textContent = label; if (fn) b.addEventListener('click', fn); return b; }
+  const setActs = (...bs) => acts.replaceChildren(...bs);
+  const sayText = t => { say.textContent = t; };
+  const focusFirst = () => { const b = acts.querySelector('button'); if (b && document.activeElement && document.activeElement !== document.body) { try { b.focus({ preventScroll: true }); } catch (e) {} } };
+
+  function setStep(st) {
+    stepId++; clearInterval(flipIv); cancelAnimationFrame(shakeRaf); holding = false;
+    tube.classList.remove('shaking');
+    frame.dataset.step = st;
+    const k = STEPS.indexOf(st);
+    [...stepsEl.children].forEach((li, i) => {
+      li.className = i < k ? 'done' : i === k ? 'now' : '';
+      if (i === k) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+    });
+    if (st !== 'result') cardWrap.classList.remove('show');
+    if (st !== 'shake') { slip.classList.remove('show'); }
+    RENDER[st]();
+    focusFirst();
+  }
+
+  function resetStick() {
+    meter = 0; meterB.style.transform = 'scaleX(0)';
+    chosen.setAttribute('transform', 'translate(0 0)'); chosen.style.opacity = 1;
+    fly.getAnimations().forEach(a => a.cancel()); fly.style.opacity = 0;
+    slip.classList.remove('show');
+  }
+  function resetCups() {
+    [cupL, cupR].forEach(c => { c.getAnimations().forEach(a => a.cancel()); c.dataset.face = 'round'; });
+  }
+
+  const RENDER = {
+    ask() {
+      resetStick(); resetCups();
+      sayText('你今次想問邊方面？');
+      setActs(...CATS.map(c => btn(c, 'chip', () => { S.cat = c; burst(2600, .05, .25, 6); setStep('incense'); })));
+    },
+    incense() {
+      incense.classList.remove('lit');
+      sayText(`求問${S.cat}。先上香，三炷清香敬告大仙。`);
+      const b = btn('上香', 'primary', () => {
+        b.disabled = true; incense.classList.add('lit'); whoosh(); vib(20);
+        later(() => { censer.classList.add('mine'); sayText('香已插好，輕煙直上。'); }, 1000);
+        later(() => setStep('pray'), 2000);
+      });
+      setActs(b);
+    },
+    pray() {
+      sayText(`雙手合十，心中默念：「弟子某某，某年某月出世，住喺某某地方，今日誠心求問${S.cat}，懇請黃大仙指點。」`);
+      const b = btn('稟告完畢', 'primary wait', () => setStep('shake'));
+      b.disabled = true; setActs(b);
+      later(() => { b.disabled = false; b.classList.remove('wait'); }, reduce ? 800 : 2600);
+    },
+    shake() {
+      resetStick(); S.throws = 0;
+      sayText('撳住下面個掣（或者直接撳住籤筒）搖，搖到有支籤跌出嚟為止。' + (motionSeen ? '亦可以直接搖手機。' : ''));
+      const b = btn('撳住搖籤', 'primary hold');
+      const on = e => { if (e) e.preventDefault(); holding = true; b.classList.add('on'); if (e && e.pointerId != null) { try { b.setPointerCapture(e.pointerId); } catch (_) {} } };
+      const off = () => { holding = false; b.classList.remove('on'); };
+      b.addEventListener('pointerdown', on);
+      ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => b.addEventListener(ev, off));
+      b.addEventListener('contextmenu', e => e.preventDefault());
+      b.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); on(); } });
+      b.addEventListener('keyup', e => { if (e.key === ' ' || e.key === 'Enter') off(); });
+      b.addEventListener('blur', off);
+      setActs(b);
+      shakeLast = performance.now(); shakeRaf = requestAnimationFrame(shakeTick);
+    },
+    cup() {
+      resetCups(); fly.getAnimations().forEach(a => a.cancel()); fly.style.opacity = 0;
+      sayText('擲杯：一平一凸係「聖杯」，即係大仙應允。');
+      setActs(btn('擲杯', 'primary', throwCups));
+    },
+    result() { showCard(); }
+  };
+
+  /* tube can be held directly too */
+  tube.addEventListener('pointerdown', e => {
+    if (frame.dataset.step !== 'shake') return;
+    e.preventDefault(); holding = true;
+    try { tube.setPointerCapture(e.pointerId); } catch (_) {}
+  });
+  ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(ev => tube.addEventListener(ev, () => { holding = false; }));
+
+  function shakeTick(ts) {
+    if (frame.dataset.step !== 'shake') return;
+    const dt = Math.min(64, ts - shakeLast); shakeLast = ts;
+    const active = holding || (ts - motionAt < 260);
+    tube.classList.toggle('shaking', active);
+    if (active) {
+      meter = Math.min(1, meter + dt / 2600);
+      if (ts > nextClick) { rattle(); nextClick = ts + 45 + Math.random() * 70; if (Math.random() < .25) vib(8); }
+    }
+    chosen.setAttribute('transform', `translate(0 ${(-meter * 72).toFixed(1)})`);
+    meterB.style.transform = `scaleX(${meter})`;
+    if (meter >= 1) { dropStick(); return; }
+    shakeRaf = requestAnimationFrame(shakeTick);
+  }
+
+  function dropStick() {
+    holding = false; tube.classList.remove('shaking');
+    setActs(); sayText('有一支籤跌咗出嚟……');
+    S.n = 1 + rand(STICKS.length);
+    const fr = frame.getBoundingClientRect(), cr = chosen.getBoundingClientRect();
+    const x0 = cr.left + cr.width / 2 - fr.left, y0 = cr.top + cr.height / 2 - fr.top;
+    const W = fr.width, H = fr.height, fw = fly.offsetWidth, fh = fly.offsetHeight;
+    const x1 = W * .26, y1 = H * .7;
+    const T = (x, y, r) => `translate(${x - fw / 2}px,${y - fh / 2}px) rotate(${r}deg)`;
+    chosen.style.opacity = 0; fly.style.opacity = 1;
+    const dur = reduce ? 1 : 1200;
+    fly.animate([
+      { transform: T(x0, y0, -7) },
+      { transform: T(x0 - W * .05, y0 - H * .16, 110), offset: .35 },
+      { transform: T(x1, y1, 420), offset: .8 },
+      { transform: T(x1 + 4, y1 - 8, 428), offset: .9 },
+      { transform: T(x1, y1, 432) }
+    ], { duration: dur, easing: 'cubic-bezier(.3,.1,.4,1)', fill: 'forwards' });
+    later(() => { knock(880); later(() => knock(760), 110); vib([25, 40, 20]); }, dur * .8);
+    later(() => {
+      slipText.textContent = `第${cn(S.n)}籤`; slip.classList.add('show');
+      sayText(`跌咗第${cn(S.n)}籤出嚟！擲筊杯，請大仙確認係咪呢支籤。`);
+      setActs(btn('去擲杯', 'primary', () => setStep('cup'))); focusFirst();
+    }, dur + 250);
+  }
+
+  function throwCups() {
+    setActs(); S.throws++;
+    const r = Math.random();
+    const res = r < .5 ? 'sheng' : r < .75 ? 'xiao' : 'yin';
+    const faces = res === 'sheng' ? (Math.random() < .5 ? ['flat', 'round'] : ['round', 'flat']) : res === 'xiao' ? ['flat', 'flat'] : ['round', 'round'];
+    const fr = frame.getBoundingClientRect(), W = fr.width, H = fr.height;
+    const dur = reduce ? 1 : 1150;
+    [cupL, cupR].forEach((c, i) => {
+      c.getAnimations().forEach(a => a.cancel());
+      const dir = i ? 1 : -1, dx = dir * W * (.03 + Math.random() * .08), dy = H * (.015 + Math.random() * .025), rot = dir * (320 + Math.random() * 300);
+      const base = i ? ' scaleX(-1)' : '';
+      c.animate([
+        { transform: `translate(0,0) rotate(0deg)${base}` },
+        { transform: `translate(${dx * .4}px,${-H * .24}px) rotate(${rot * .5}deg)${base}`, offset: .45, easing: 'ease-in' },
+        { transform: `translate(${dx}px,${dy}px) rotate(${rot}deg)${base}`, offset: .84, easing: 'ease-out' },
+        { transform: `translate(${dx}px,${dy - H * .012}px) rotate(${rot + 8}deg)${base}`, offset: .92 },
+        { transform: `translate(${dx}px,${dy}px) rotate(${rot + 5}deg)${base}` }
+      ], { duration: dur + i * 60, easing: 'cubic-bezier(.25,.1,.3,1)', fill: 'forwards' });
+    });
+    if (!reduce) { let k = 0; flipIv = setInterval(() => { k++; [cupL, cupR].forEach(c => { c.dataset.face = k % 2 ? 'flat' : 'round'; }); }, 110); }
+    later(() => {
+      clearInterval(flipIv); cupL.dataset.face = faces[0]; cupR.dataset.face = faces[1];
+      knock(560); later(() => knock(470), 70); vib(30);
+    }, dur * .84);
+    later(() => cupResult(res), dur + 250);
+  }
+
+  function cupResult(res) {
+    const msg = { sheng: '聖杯！一平一凸，大仙應允呢支籤。', xiao: '笑杯：兩面都係平面向上，大仙笑而不語。', yin: '陰杯：兩面都係凸面向上，大仙未允。' };
+    if (res === 'sheng') { chime(); sayText(msg.sheng); setActs(btn('睇籤文', 'primary', () => setStep('result'))); }
+    else if (S.throws < 3) { sayText(msg[res] + '再誠心擲一次。'); setActs(btn('再擲一次', 'primary', throwCups)); }
+    else { sayText(msg[res] + '三擲都未得聖杯，請重新搖籤。'); setActs(btn('重新搖籤', 'primary', () => setStep('shake'))); }
+    focusFirst();
+  }
+
+  const HIT = {
+    '事業': p => /名|謀|功/.test(p),
+    '財運': p => /財|名與利|名利/.test(p),
+    '姻緣': p => /婚|姻|偶|耦/.test(p),
+    '健康': p => /病|疾|醫/.test(p),
+    '家宅': p => /宅|家/.test(p),
+    '學業': p => /名|功/.test(p),
+    '出行': p => p.startsWith('行') || p.includes('行人') || p === '出行阻'
+  };
+  const YS_HIT = { '健康': '自身', '出行': '出行', '家宅': '風水' };
+
+  function showCard() {
+    const s = STICKS[S.n - 1];
+    const esc = t => String(t).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+    const test = HIT[S.cat];
+    let hits = s.pairs.filter(([a, b]) => test(a) || test(b));
+    if (!hits.length) hits = s.pairs.filter(([a, b]) => /謀/.test(a + b));
+    const ysKey = YS_HIT[S.cat];
+    const ysHit = ysKey ? s.ys.find(([k]) => k === ysKey) : null;
+    const quote = [...hits.map(([a, b]) => `${a}，${b}`), ...(ysHit ? [`問${ysHit[0]}：${ysHit[1]}`] : [])].join('；');
+    card.innerHTML =
+      `<p class="c-head">黃大仙靈籤　模擬求籤</p>` +
+      `<div class="c-no"><h2>第${cn(S.n)}籤</h2><span class="c-grade">${esc(s.g)}</span></div>` +
+      `<p class="c-title">〈${esc(s.t)}〉</p>` +
+      `<div class="c-poemwrap"><div class="c-poem">${s.p.map(l => `<p>${esc(l)}</p>`).join('')}</div></div>` +
+      `<p class="c-ask"><b>問${esc(S.cat)}</b>${quote ? `籤示「${esc(quote)}」。` : ''}<span class="c-ref">參考：${esc(ADV[S.cat][s.g])}</span></p>` +
+      (S.cat === '健康' ? `<p class="c-note">身體狀況請以醫生意見為準。</p>` : '') +
+      `<p class="c-label">仙機</p>` +
+      `<div class="c-xj">${s.pairs.map(([a, b]) => `<span class="${(test(a) || test(b)) ? 'hit' : ''}">${esc(a)}。${esc(b)}。</span>`).join('')}</div>` +
+      `<p class="c-label">運勢</p>` +
+      `<dl class="c-ys">${s.ys.map(([k, v]) => `<dt class="${k === ysKey ? 'hit' : ''}">問${esc(k)}</dt><dd class="${k === ysKey ? 'hit' : ''}">${esc(v)}</dd>`).join('')}</dl>` +
+      `<p class="c-foot">同一件事，一日求一次就夠。籤文據傳統黃大仙靈籤，各版本字眼或有出入；模擬求籤僅供娛樂參考，正式解籤請親臨黃大仙祠。</p>`;
+    const again = btn('再問一件事', 'primary', () => { S.cat = null; setStep('ask'); });
+    card.appendChild(again);
+    card.scrollTop = 0;
+    sayText('');
+    setActs();
+    cardWrap.classList.add('show');
+    try { card.focus({ preventScroll: true }); } catch (e) {}
+  }
+
+  $('begin').addEventListener('click', () => {
+    audio(); enableMotion();
+    intro.classList.add('gone');
+    setStep('ask');
+  });
+})();
+</script>
+</body>
+</html>

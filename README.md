@@ -221,6 +221,7 @@
     .lc-fb::before      { background: #1877f2; }
     .lc-yt::before      { background: #ff0000; }
     .lc-tt::before      { background: #010101; }
+    .lc-game::before    { background: var(--gold); }
 
     .link-icon {
       width: 36px; height: 36px;
@@ -245,6 +246,7 @@
     .ic-fb      { background: rgba(24,119,242,0.1); color: #1877f2; }
     .ic-yt      { background: rgba(200,40,40,0.1);  color: #cc0000; }
     .ic-tt      { background: rgba(0,0,0,0.06);     color: #1a1a1a; }
+    .ic-game    { background: rgba(158,42,42,0.1); color: var(--red); }
 
     .link-text { flex: 1; }
     .link-label-zh { font-size: 0.87rem; font-weight: 600; letter-spacing: 0.04em; }
@@ -302,6 +304,15 @@
   <div class="divider"><span class="divider-glyph">✦</span></div>
 
   <div class="links">
+
+    <a class="link-card lc-game" href="wong-tai-sin.html" target="_blank" rel="noopener">
+      <div class="link-icon ic-game">🎋</div>
+      <div class="link-text">
+        <div class="link-label-zh">黃大仙靈籤 · 線上求籤</div>
+        <div class="link-label-en">Fortune Sticks · Try Your Luck</div>
+      </div>
+      <span class="link-arrow">›</span>
+    </a>
 
     <a class="link-card lc-wechat" href="#" onclick="document.getElementById('wechatModal').classList.add('active'); return false;">
       <div class="link-icon ic-wechat">
