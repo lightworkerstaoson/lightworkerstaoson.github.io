@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>玉皇天赦日 求籤</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky1:#10152b;--sky2:#2a2c55;--sky3:#5b3a5c;
+  --gold:#e0b65a;--gold2:#a8762c;--cinnabar:#b23a2e;--lacquer:#7a1f1b;
+  --silk:#f3e4b9;--paper:#f4ead0;--ink:#231c22;--cloud:#f3ecdc;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--sky1:#10152b;--cloud:#f3ecdc}}
+:root[data-theme="dark"]{--sky1:#10152b;--cloud:#f3ecdc}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:#10152b}
+body{height:100%;margin:0;background:var(--sky1);color:var(--cloud);
+  font-family:"Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+*,*::before,*::after{box-sizing:border-box}
+button{font:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+
+#app{position:relative;height:100%;overflow:hidden;
+  background:linear-gradient(to bottom,var(--sky1),var(--sky2) 55%,var(--sky3))}
+.clouds{position:absolute;inset:0;pointer-events:none;opacity:.9;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='90'%3E%3Cg fill='%23f3ecdc' fill-opacity='.09'%3E%3Cellipse cx='60' cy='56' rx='52' ry='16'/%3E%3Ccircle cx='48' cy='44' r='17'/%3E%3Ccircle cx='76' cy='38' r='22'/%3E%3Cellipse cx='190' cy='70' rx='44' ry='11'/%3E%3Ccircle cx='196' cy='60' r='13'/%3E%3C/g%3E%3Cg fill='none' stroke='%23e0b65a' stroke-opacity='.2' stroke-width='1.4'%3E%3Cpath d='M28 56q-10-14 6-18q12-2 10 10'/%3E%3Cpath d='M170 70q-8-11 5-14q9-1 8 8'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat:repeat;background-size:260px 90px;animation:drift 90s linear infinite}
+@keyframes drift{to{background-position:520px 0}}
+
+/* world: what you see while kneeling */
+#world{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;padding-top:2.5vh;padding-bottom:170px}
+#world.bow{animation:bow 1.2s ease}
+@keyframes bow{0%{transform:none;filter:none}45%{transform:translateY(-16%) scale(1.1);filter:brightness(.35) blur(1px)}100%{transform:none;filter:none}}
+
+.plaque{font-weight:900;font-size:clamp(18px,3.6vh,28px);letter-spacing:.35em;padding:.28em .4em .28em .75em;
+  background:var(--lacquer);color:var(--gold);border:3px double var(--gold);margin-bottom:1.4vh;position:relative;z-index:2;
+  box-shadow:0 6px 18px #0008}
+.gateway{--gh:min(42vh,420px);position:relative;height:var(--gh);width:min(76vw,calc(var(--gh)*.82));perspective:1100px}
+.pillar{position:absolute;top:-2vh;bottom:-1vh;width:clamp(22px,6vw,34px);background:linear-gradient(90deg,#5c1512,#a3302a 45%,#5c1512);
+  writing-mode:vertical-rl;color:var(--gold);font-size:clamp(11px,1.8vh,15px);letter-spacing:.3em;display:flex;align-items:center;justify-content:center;
+  border-top:6px solid var(--gold2);border-bottom:6px solid var(--gold2)}
+.pillar.l{right:calc(100% + 6px)}.pillar.r{left:calc(100% + 6px)}
+.stage{position:absolute;inset:0;overflow:hidden;background:radial-gradient(ellipse at 50% 38%,#fff1c2 0%,#e0b65a66 32%,#2a1c2e 78%);border:3px solid var(--gold2)}
+.rays{position:absolute;inset:-60%;background:repeating-conic-gradient(from 0deg at 50% 50%,#fff3c41a 0 5deg,transparent 5deg 13deg);animation:spin 80s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stage::after{content:"";position:absolute;inset:0;background:#120c18;transition:opacity 2.4s ease .4s}
+.open .stage::after{opacity:0}
+.emp{position:absolute;left:0;right:0;bottom:0;width:100%;height:98%;opacity:0;transform:translateY(40px) scale(.94);
+  transition:opacity 2.2s ease 1.2s,transform 2.6s cubic-bezier(.2,.7,.2,1) 1.2s}
+.open .emp{opacity:1;transform:none}
+.gate{position:absolute;top:0;bottom:0;width:50%;z-index:2;
+  background:
+   radial-gradient(circle,#f3cf72 0 18%,#9a6a22 26%,transparent 32%) 0 0/25% 11%,
+   linear-gradient(#93292a,#6a1916);
+  border:3px solid var(--gold2);transition:transform 2.6s cubic-bezier(.6,0,.25,1)}
+.gate.l{left:0;transform-origin:left center}
+.gate.r{right:0;transform-origin:right center}
+.gate i{position:absolute;top:50%;width:30px;height:30px;margin-top:-15px;border:4px solid var(--gold);border-radius:50%;
+  background:radial-gradient(circle,#f3cf72 0 30%,transparent 34%)}
+.gate.l i{right:8px}.gate.r i{left:8px}
+.open .gate.l{transform:rotateY(100deg)}
+.open .gate.r{transform:rotateY(-100deg)}
+
+.burner{position:relative;z-index:3;width:min(44vw,210px);margin-top:-9vh;filter:drop-shadow(0 10px 16px #000a)}
+.burner svg{display:block;width:100%;height:auto}
+.stick{opacity:0;transition:opacity .7s}
+.stick.lit{opacity:1}
+.ember{animation:glow 1.4s ease-in-out infinite alternate}
+@keyframes glow{from{fill:#ff9a3a}to{fill:#ffe08a}}
+.smoke{fill:none;stroke:#f3ecdc;stroke-width:2;stroke-linecap:round;opacity:0;transform-box:fill-box;animation:rise 3.6s ease-out infinite}
+.smoke.b{animation-delay:1.8s}
+@keyframes rise{0%{opacity:0;transform:translateY(8px)}30%{opacity:.55}100%{opacity:0;transform:translateY(-30px) scaleX(1.4)}}
+
+/* dialog */
+.dialog{position:absolute;left:0;right:0;bottom:0;z-index:10;min-height:170px;padding:26px 20px 18px;
+  background:linear-gradient(to bottom,transparent,#0c0a16e8 28%,#0c0a16);text-align:center}
+.who{margin:0 0 4px;color:var(--gold);font-size:14px;letter-spacing:.25em;min-height:1.2em}
+#cap{margin:0 auto 12px;max-width:30em;font-family:"LXGW WenKai TC","Kaiti TC","DFKai-SB""Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;font-size:clamp(16px,2.4vh,19px);line-height:1.75;min-height:3.5em}
+.btn{min-height:48px;min-width:9em;padding:10px 26px;border:1px solid var(--gold);background:linear-gradient(#8e2622,var(--lacquer));
+  color:var(--silk);font-weight:700;letter-spacing:.2em;border-radius:3px;box-shadow:0 0 0 3px #7a1f1b55,0 6px 14px #0008}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--gold)}
+.btn[hidden]{display:none}
+
+/* sin / karma motes */
+#motes{position:absolute;inset:0;pointer-events:none;z-index:4}
+.mote{position:absolute;opacity:0;color:#6b5a70;font-weight:700;font-size:clamp(15px,2.5vh,21px);white-space:nowrap;
+  text-shadow:0 0 8px #000,0 0 22px #1a1020,0 0 30px #000;transition:opacity 1.4s ease,color 1s ease,transform 2.6s ease,text-shadow 1s}
+.mote.in{opacity:.95}
+.mote b{display:block;font-weight:inherit;animation:bob 4s ease-in-out infinite alternate}
+@keyframes bob{from{transform:translate(0,0)}to{transform:translate(6px,-10px)}}
+.mote.freed{color:#ffe6a0;text-shadow:0 0 12px #ffd76a;transform:translateY(-48vh) scale(.5);opacity:0;transition:color .6s ease,text-shadow .6s,transform 2.8s ease .5s,opacity 2.4s ease .9s}
+
+/* decree */
+#decree{position:absolute;left:50%;top:9vh;z-index:6;display:flex;align-items:stretch;transform:translateX(-50%) scaleX(0);transition:transform 1s cubic-bezier(.3,.8,.3,1)}
+#decree.show{transform:translateX(-50%) scaleX(1)}
+#decree.leave{transform:translateX(-50%) translateY(-6vh) scale(.6);opacity:0;transition:transform 1.4s ease,opacity 1.4s ease}
+.rod{width:14px;background:linear-gradient(90deg,#4a1210,#8e2622,#4a1210);border-radius:7px;margin:-10px 0;box-shadow:0 0 0 2px var(--gold2)}
+.silk{position:relative;background:
+  repeating-linear-gradient(45deg,#0000 0 10px,#c9a05a14 10px 11px),var(--silk);
+  color:var(--ink);padding:16px 18px;writing-mode:vertical-rl;height:clamp(230px,36vh,310px);
+  font-family:"LXGW WenKai TC","Kaiti TC","DFKai-SB""Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;font-size:clamp(14px,2.2vh,18px);line-height:1.85;letter-spacing:.12em;
+  box-shadow:0 10px 30px #000a}
+.silk .t{color:var(--cinnabar);font-weight:700;font-size:1.25em}
+.seal{position:absolute;width:60px;height:60px;background:var(--cinnabar);color:#f7e7c6;writing-mode:vertical-rl;
+  font:900 22px/1 "Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","PMingLiU",serif;display:flex;align-items:center;justify-content:center;border-radius:5px;letter-spacing:.05em;
+  box-shadow:inset 0 0 0 3px #f7e7c6aa;opacity:0;transform:scale(3) rotate(-10deg)}
+.seal.a{left:14px;bottom:16px}.seal.b{left:84px;bottom:40px}
+.seal.c{left:46px;bottom:112px;background:#c3301f;box-shadow:inset 0 0 0 3px #f3cf72,0 0 18px #ffd46a88}
+#blessfx{position:absolute;inset:0;z-index:7;pointer-events:none;display:grid;place-items:center;opacity:0;transition:opacity .8s}
+#blessfx.on{opacity:1}
+#blessfx .fu{position:absolute;left:50%;top:44%;width:min(38vw,190px);aspect-ratio:1;background:#ba2822;border:4px solid var(--gold);
+  box-shadow:0 0 0 6px #ba2822,0 0 70px #ffd46aaa;transform:translate(-50%,-50%) rotate(45deg) scale(.1);opacity:0}
+#blessfx.on .fu{animation:fuin 1.4s cubic-bezier(.3,1.5,.5,1) forwards}
+@keyframes fuin{to{transform:translate(-50%,-50%) rotate(45deg) scale(1);opacity:1}}
+#blessfx .fu span{position:absolute;inset:0;display:grid;place-items:center;transform:rotate(-45deg);font-weight:900;font-size:min(22vw,110px);color:#fad678}
+#blessfx .bl{position:absolute;left:50%;top:44%;font-weight:700;font-size:clamp(17px,2.8vh,22px);letter-spacing:.2em;color:#ffe4a0;
+  text-shadow:0 0 12px #ffbe5a,0 0 3px #000;opacity:0;transform:translate(-50%,-50%)}
+#blessfx.on .bl{animation:blout 1.2s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes blout{to{opacity:1;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y)))}}
+.slip .cseal{position:absolute;left:16px;bottom:16px;width:58px;height:58px;background:#c3301f;color:#f7e7c6;writing-mode:vertical-rl;
+  display:flex;align-items:center;justify-content:center;font:900 20px/1 "Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","PMingLiU",serif;border-radius:5px;box-shadow:inset 0 0 0 3px #f7e7c6aa;opacity:0;transform:scale(3) rotate(-10deg)}
+#card.on .cseal{animation:stamp .45s cubic-bezier(.5,0,.8,1) .7s forwards}
+.seal.on{animation:stamp .45s cubic-bezier(.5,0,.8,1) forwards}
+@keyframes stamp{0%{opacity:0;transform:scale(3) rotate(-10deg)}70%{opacity:.95;transform:scale(.92) rotate(-6deg)}100%{opacity:.9;transform:scale(1) rotate(-6deg)}}
+
+#flash{position:absolute;inset:0;pointer-events:none;z-index:8;opacity:0;
+  background:radial-gradient(circle at 50% 35%,#fff8dd,#e0b65a88 40%,transparent 72%)}
+#flash.go{animation:flash 2s ease}
+@keyframes flash{0%{opacity:0}25%{opacity:1}100%{opacity:0}}
+
+/* intro */
+#intro{position:absolute;inset:0;z-index:20;display:grid;place-items:center;overflow:auto;padding:18px;
+  background:radial-gradient(ellipse at 50% 28%,#3b2a50,var(--sky1) 72%);transition:opacity 1.2s ease}
+#intro.gone{opacity:0;pointer-events:none}
+.intro-card{width:min(92vw,420px);text-align:center;padding:26px 22px 24px;border:1px solid #e0b65a77;outline:1px solid #e0b65a33;outline-offset:6px}
+.brand{margin:0;color:var(--gold);font-size:15px;letter-spacing:.3em}
+.brand small{display:block;font-size:12px;opacity:.75;margin-top:4px;letter-spacing:.45em}
+h1{margin:18px 0 6px;font-weight:900;font-size:clamp(42px,12vw,62px);letter-spacing:.14em;color:var(--gold);
+  text-shadow:0 0 24px #e0b65a55,0 2px 0 #7a1f1b}
+.date{margin:0;font-size:15px;letter-spacing:.12em;line-height:1.8}
+.date span{display:block;font-size:13px;opacity:.7;letter-spacing:.08em}
+.intro-card p.note{font-family:"LXGW WenKai TC","Kaiti TC","BiauKai","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;font-size:15px;line-height:1.8;margin:16px 0;opacity:.9}
+label{display:block;text-align:left;font-size:14px;color:var(--gold);margin:12px 0 6px;letter-spacing:.1em}
+input,textarea,select{width:100%;font:16px/1.6 "LXGW WenKai TC","Kaiti TC","BiauKai","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;color:var(--cloud);background:#0c0a1699;border:1px solid #e0b65a66;border-radius:3px;padding:10px 12px}
+textarea{resize:vertical;min-height:78px}
+input::placeholder,textarea::placeholder{color:#f3ecdc66}
+.intro-card .btn{margin-top:20px}
+
+#snd{position:absolute;top:10px;right:10px;z-index:25;width:42px;height:42px;border-radius:50%;border:1px solid #e0b65a66;background:#0c0a1688;color:var(--gold);font-size:18px}
+
+/* modals */
+.modal{position:absolute;inset:0;z-index:15;display:none;place-items:center;padding:14px;background:#0a0812d6;overflow:auto}
+.modal.on{display:grid}
+.panel{width:min(94vw,420px);text-align:center}
+.panel h2{margin:0 0 6px;color:var(--gold);letter-spacing:.3em;font-size:22px}
+.panel .hint{font-family:"LXGW WenKai TC","Kaiti TC","BiauKai","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;margin:0 0 10px;opacity:.85;line-height:1.7}
+.tube-area{position:relative;height:250px;display:flex;justify-content:center;align-items:flex-end;margin:6px 0}
+.tube-g{position:relative;width:110px;height:230px;transform-origin:50% 90%}
+.tube-g.shake{animation:shake .5s ease-in-out 3}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg)}75%{transform:rotate(12deg)}}
+.sticks{position:absolute;left:50%;bottom:110px;transform:translateX(-50%);display:flex;gap:3px;align-items:flex-end}
+.sticks i{width:7px;background:linear-gradient(90deg,#c99c62,#e9c68d);border-radius:3px 3px 0 0}
+.tube{position:absolute;left:0;right:0;bottom:0;height:150px;border-radius:8px 8px 18px 18px;
+  background:linear-gradient(90deg,#5a2a16,#a4612f 45%,#5a2a16);box-shadow:inset 0 -10px 0 #3d1c0f,0 10px 20px #0009;
+  display:grid;place-items:center;color:var(--gold);font-weight:900;font-size:34px;border-top:6px solid var(--gold2)}
+.tube::before,.tube::after{content:"";position:absolute;left:0;right:0;height:5px;background:var(--gold2)}
+.tube::before{top:26px}.tube::after{bottom:26px}
+.pick{position:absolute;left:50%;bottom:120px;width:30px;height:160px;border-radius:6px;opacity:0;z-index:0;
+  background:linear-gradient(90deg,#d9ad72,#f0d29c,#d9ad72);color:var(--lacquer);writing-mode:vertical-rl;
+  font-weight:900;font-size:16px;letter-spacing:.15em;display:flex;align-items:center;padding-top:12px;transform:translate(-50%,40px)}
+.pick.out{animation:pick 1s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes pick{0%{opacity:1;transform:translate(-50%,60px)}100%{opacity:1;transform:translate(40%,-30px) rotate(20deg)}}
+.jiao{display:flex;gap:22px;justify-content:center;align-items:flex-end;height:120px}
+.bw{display:inline-block}
+.bw.toss{animation:toss 1.1s cubic-bezier(.3,.6,.4,1)}
+.bw.toss.d{animation-delay:.08s}
+@keyframes toss{0%{transform:translateY(0) rotate(0)}50%{transform:translateY(-110px) rotate(380deg)}100%{transform:translateY(0) rotate(720deg)}}
+.bei{width:72px;height:36px;border-radius:72px 72px 8px 8px}
+.bei.round{background:radial-gradient(circle at 35% 30%,#f08066,#b23a2e 45%,#6e1a14)}
+.bei.flat{background:linear-gradient(#ebc187,#c48a52);border:3px solid #8e2a20}
+.b2 .bei{transform:scaleX(-1)}
+.jres{min-height:3.4em;font-family:"LXGW WenKai TC","Kaiti TC","BiauKai","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;font-size:17px;line-height:1.7;margin:10px 0}
+.jres strong{color:var(--gold);font-size:20px;letter-spacing:.2em;display:block}
+.row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+
+.slip{position:relative;background:var(--paper);color:var(--ink);padding:24px 20px 20px;border:2px solid var(--cinnabar);
+  outline:1px solid var(--cinnabar);outline-offset:-9px;text-align:center;box-shadow:0 14px 40px #000c}
+.slip .top{font-size:13px;letter-spacing:.3em;color:var(--cinnabar);margin:0}
+.slip .no{font-size:30px;font-weight:900;margin:6px 0 0;letter-spacing:.15em}
+.lv{position:absolute;top:18px;right:18px;width:54px;height:54px;border-radius:50%;border:2px solid var(--cinnabar);color:var(--cinnabar);
+  display:grid;place-items:center;font-weight:900;font-size:17px;transform:rotate(8deg)}
+.poem-wrap{display:flex;justify-content:center;margin:14px 0 10px}
+.poem{writing-mode:vertical-rl;font-family:"LXGW WenKai TC","Kaiti TC","DFKai-SB""Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;font-size:clamp(21px,6.4vw,26px);line-height:2;letter-spacing:.14em;margin:0}
+.poem{height:8.6em}
+.poem span{display:block;white-space:nowrap}
+.jie{text-align:left;font-family:"LXGW WenKai TC","Kaiti TC","BiauKai","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;font-size:16px;line-height:1.8;margin:8px 4px;border-top:1px solid #b23a2e55;padding-top:10px}
+.jie b{color:var(--cinnabar);margin-right:.4em}
+.slip .foot{margin:12px 0 0;font-size:12px;letter-spacing:.12em;color:#6b5a55;line-height:1.7}
+
+.ai{margin-top:14px;text-align:left;border:1px solid #e0b65a66;background:#0c0a16cc;padding:14px;border-radius:3px}
+.ai h3{margin:0 0 8px;color:var(--gold);font-size:16px;letter-spacing:.25em;text-align:center}
+.chat{display:flex;flex-direction:column;gap:10px;max-height:46vh;overflow:auto;margin-bottom:10px}
+.msg{font-family:"LXGW WenKai TC","Kaiti TC","BiauKai","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;font-size:16px;line-height:1.8;white-space:pre-wrap;padding:10px 12px;border-radius:3px;max-width:92%}
+.msg.u{align-self:flex-end;background:#7a1f1b;color:var(--silk)}
+.msg.a{align-self:flex-start;background:#f4ead0;color:var(--ink);border-left:3px solid var(--cinnabar)}
+.msg.a .by{display:block;font-size:12px;color:var(--cinnabar);letter-spacing:.2em;margin-bottom:2px}
+.ai-in{display:flex;gap:8px}
+.ai-in input{flex:1;min-width:0}
+.btn.sm{min-width:auto;padding:8px 16px;letter-spacing:.1em}
+.ai-note{margin:8px 0 0;font-size:13px;opacity:.75;line-height:1.6}
+.ai .start{display:block;margin:4px auto 8px}
+/* 疏文 */
+.form .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;text-align:left}
+.form .fgrid label{margin:8px 0 0;font-size:13px}
+.form .fgrid label input,.form .fgrid label select{margin-top:4px}
+.form .fgrid .full{grid-column:1/-1}
+.hint.small{font-size:13px;opacity:.7}
+.panel.wide{width:min(96vw,640px)}
+.shu-wrap{position:relative}
+.shu-paper{height:min(60vh,540px);overflow:auto;background:
+  repeating-linear-gradient(0deg,#0000 0 28px,#b23a2e10 28px 29px),#f1dfa6;color:#2a1c14;border:3px double var(--cinnabar);
+  box-shadow:0 14px 40px #000c;text-align:left;-webkit-overflow-scrolling:touch}
+.shu-text{writing-mode:vertical-rl;height:100%;padding:18px 16px;font-family:"LXGW WenKai TC","Kaiti TC","DFKai-SB""Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","Songti TC","PMingLiU","MingLiU",serif;
+  font-size:clamp(15px,2.3vh,18px);line-height:1.95;letter-spacing:.1em}
+.shu-text div{margin:0}
+.shu-text .h{color:var(--cinnabar);font-weight:700;margin-inline-start:.4em}
+.shu-text .t{color:var(--cinnabar);font-weight:900;font-size:1.2em}
+.shu-text .me{color:#6d2a10;font-weight:700}
+.shu-paper.flat .shu-text{writing-mode:horizontal-tb;height:auto}
+.shu-paper.burn{-webkit-mask-image:linear-gradient(#000 0 40%,transparent 60%);mask-image:linear-gradient(#000 0 40%,transparent 60%);
+  -webkit-mask-size:100% 250%;mask-size:100% 250%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  animation:burnmask 2.6s ease-in forwards;filter:sepia(.4)}
+@keyframes burnmask{from{-webkit-mask-position:0 0;mask-position:0 0}to{-webkit-mask-position:0 100%;mask-position:0 100%}}
+.fire{position:absolute;left:-4%;right:-4%;height:22%;bottom:-22%;opacity:0;pointer-events:none;
+  background:linear-gradient(transparent,#ff8a2acc 40%,#ffe08aee 55%,#ff8a2a88 70%,transparent);filter:blur(6px)}
+.burning .fire{animation:fire 2.6s ease-in forwards}
+@keyframes fire{0%{opacity:0;bottom:-22%}10%{opacity:1}90%{opacity:1}100%{opacity:0;bottom:100%}}
+.ember2{position:absolute;bottom:0;width:5px;height:5px;border-radius:50%;background:#ffcf6a;box-shadow:0 0 8px #ff9a3a;opacity:0;pointer-events:none}
+.burning .ember2{animation:ember 2.4s ease-out forwards}
+@keyframes ember{0%{opacity:0;transform:translate(0,0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--dx),-70vh)}}
+
+#decree{width:max-content;max-width:94vw}
+.silk{overflow-x:auto;min-width:0;flex:1 1 auto}
+.seal,.slip .cseal{writing-mode:horizontal-tb!important;line-height:1.12!important;text-align:center;word-break:break-all;padding:0 17px}
+.slip .cseal{padding:0 18px}
+/* 敕令蓋印 */
+#rite{position:absolute;left:0;right:0;top:0;bottom:150px;z-index:6;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:clamp(12px,2.6vh,26px);padding:10px;background:radial-gradient(ellipse at 50% 40%,#2a1c2ed9,#0c0a16f2 70%);opacity:0;pointer-events:none;transition:opacity .8s}
+#rite.on{opacity:1;pointer-events:auto}
+#rite.shake{animation:quake .35s ease}
+@keyframes quake{20%{transform:translate(-4px,3px)}40%{transform:translate(4px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(2px,-1px)}}
+.edict{display:flex;align-items:stretch;transform:scaleX(.03);transition:transform 1.1s cubic-bezier(.3,.8,.3,1) .2s;max-width:94vw}
+#rite.on .edict{transform:scaleX(1)}
+.edict-silk{--s:clamp(54px,8.2vh,70px);display:flex;gap:12px;padding:14px;width:calc(min(94vw,440px) - 28px);box-sizing:border-box;height:clamp(250px,40vh,330px);color:var(--ink);
+  background:repeating-linear-gradient(45deg,#0000 0 10px,#c9a05a14 10px 11px),var(--silk);box-shadow:0 12px 34px #000b;overflow:hidden}
+.edict-text{writing-mode:vertical-rl;height:100%;font-family:"LXGW WenKai TC","Kaiti TC","BiauKai","Noto Serif TC","Noto Serif CJK TC","Source Han Serif TC","PMingLiU",serif;
+  font-size:clamp(12px,min(2.05vh,3.7vw),17px);line-height:1.75;letter-spacing:.06em;width:max-content;flex:none;margin:0 auto}
+.edict-text .t{color:var(--cinnabar);font-weight:900;font-size:1.3em}
+.slots{display:flex;flex-direction:column;justify-content:space-evenly;align-items:center;padding-right:12px;border-right:1px dashed #b23a2e55}
+.slot{position:relative;width:var(--s);height:var(--s);border:1.5px dashed #b23a2e70;border-radius:6px;display:grid;place-items:center}
+.slot>span{color:#b23a2e66;font-size:12px;letter-spacing:.15em}
+.slot .print{position:absolute;inset:-3px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  background:radial-gradient(circle at 70% 80%,#e0584033 0 6px,#0000 7px),#c3301f;
+  color:#f8e9c9;font:900 calc(var(--s)*.33)/1.05 "Noto Serif TC","Noto Serif CJK TC","PMingLiU",serif;box-shadow:inset 0 0 0 3px #f8e9c9b0;
+  transform:rotate(-6deg);animation:inkin .28s ease-out}
+.slot .print span{display:block}
+@keyframes inkin{0%{opacity:0;transform:scale(1.35) rotate(-6deg)}50%{opacity:1}100%{transform:scale(1) rotate(-6deg)}}
+.slot .ink{position:absolute;inset:-6px;border:3px solid #c3301f;border-radius:10px;animation:inkring .8s ease-out forwards;pointer-events:none}
+@keyframes inkring{from{opacity:.8;transform:scale(1)}to{opacity:0;transform:scale(1.9)}}
+.stamps{display:flex;gap:clamp(14px,5vw,26px)}
+.stamp,.fly{position:relative;width:clamp(62px,17vw,76px);aspect-ratio:78/92;border:0;background:none;padding:0}
+.stamp{cursor:pointer;opacity:.4;filter:grayscale(.6);transition:opacity .4s,filter .4s,transform .3s}
+.stamp .knob,.fly .knob{position:absolute;left:50%;top:0;width:44%;height:46%;transform:translateX(-50%);border-radius:50% 50% 10% 10%;
+  background:radial-gradient(circle at 35% 30%,#e7c27a,#9b6a2c 55%,#5e3a14);box-shadow:inset 0 -3px 0 #4a2c0e}
+.stamp b,.fly b{position:absolute;left:0;right:0;bottom:0;height:60%;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(90deg,#5e3a14,#c79a55 45%,#8a5c24);border-bottom:6px solid #c3301f;color:#3a220c;font:900 clamp(15px,4.2vw,18px)/1 "Noto Serif TC","Noto Serif CJK TC",serif;letter-spacing:.08em}
+.stamp.ready{opacity:1;filter:none;animation:ready 1.4s ease-in-out infinite}
+@keyframes ready{50%{transform:translateY(-6px);filter:drop-shadow(0 0 12px #ffd46a)}}
+.stamp.used{opacity:.15;pointer-events:none;animation:none}
+.stamp:focus-visible{outline:2px solid var(--gold);outline-offset:4px}
+.fly{position:fixed;z-index:9;pointer-events:none;filter:drop-shadow(0 10px 12px #000a)}
+.mote.side{transition:left 1.2s ease,top 1.2s ease,opacity 1.4s ease,color 1s ease,transform 2.6s ease}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.3s!important;transition-delay:0s!important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="clouds"></div>
+
+  <div id="world">
+    <div class="plaque">凌霄寶殿</div>
+    <div class="gateway">
+      <div class="pillar l">金闕開恩赦</div>
+      <div class="pillar r">玉京降福祥</div>
+      <div class="stage">
+        <div class="rays"></div>
+        <svg class="emp" viewBox="0 0 300 360" preserveAspectRatio="xMidYMax meet" aria-label="玉皇上帝">
+          <defs>
+            <radialGradient id="halo"><stop offset="0" stop-color="#fff3c4" stop-opacity=".95"/><stop offset=".45" stop-color="#e0b65a" stop-opacity=".55"/><stop offset="1" stop-color="#e0b65a" stop-opacity="0"/></radialGradient>
+            <linearGradient id="robe" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0c865"/><stop offset="1" stop-color="#b07a26"/></linearGradient>
+            <linearGradient id="slv" x1="0" x2="1"><stop offset="0" stop-color="#c8902f"/><stop offset=".5" stop-color="#eec35f"/><stop offset="1" stop-color="#c8902f"/></linearGradient>
+          </defs>
+          <circle cx="150" cy="118" r="112" fill="url(#halo)"/>
+          <circle cx="150" cy="118" r="74" fill="none" stroke="#f3d690" stroke-width="1.5" opacity=".7"/>
+          <path d="M62 152Q62 70 150 62Q238 70 238 152L238 332L62 332Z" fill="#6e1c19" stroke="#e0b65a" stroke-width="3"/>
+          <path d="M78 152Q80 86 150 80Q220 86 222 152" fill="none" stroke="#e0b65a" stroke-width="1.5" opacity=".6"/>
+          <path d="M112 168Q150 158 188 168L214 250L232 340L68 340L86 250Z" fill="url(#robe)" stroke="#8a5a1a" stroke-width="1.5"/>
+          <path d="M138 190L162 190L170 340L130 340Z" fill="#a8322d"/>
+          <g stroke="#f0c865" stroke-width="1.4" fill="none"><path d="M141 290q9-8 18 0"/><path d="M138 312q12-9 24 0"/><path d="M136 332q14-9 28 0"/></g>
+          <path d="M112 170Q76 178 70 232Q66 272 96 282Q128 288 146 262L150 232Q128 214 120 190Z" fill="url(#slv)" stroke="#8a5a1a" stroke-width="1.5"/>
+          <path d="M188 170Q224 178 230 232Q234 272 204 282Q172 288 154 262L150 232Q172 214 180 190Z" fill="url(#slv)" stroke="#8a5a1a" stroke-width="1.5"/>
+          <path d="M96 282Q128 288 146 262" fill="none" stroke="#a8322d" stroke-width="6"/>
+          <path d="M204 282Q172 288 154 262" fill="none" stroke="#a8322d" stroke-width="6"/>
+          <g fill="none" stroke="#a8322d" stroke-width="1.3" opacity=".7"><path d="M84 236q10-10 20 0q-6 8-12 2"/><path d="M216 236q-10-10-20 0q6 8 12 2"/></g>
+          <rect x="143" y="196" width="14" height="80" rx="5" fill="#efe6d2" stroke="#b9a988"/>
+          <path d="M122 168L150 206L178 168" fill="none" stroke="#a8322d" stroke-width="7" stroke-linejoin="round"/>
+          <path d="M122 168L150 206L178 168" fill="none" stroke="#f0c865" stroke-width="1.5"/>
+          <rect x="140" y="148" width="20" height="18" fill="#e3c296"/>
+          <ellipse cx="150" cy="128" rx="25" ry="29" fill="#ecd0a6"/>
+          <path d="M132 140Q150 200 168 140Q160 152 150 152Q140 152 132 140Z" fill="#2a2226"/>
+          <path d="M128 108Q150 96 172 108L170 86L130 86Z" fill="#231c22" stroke="#e0b65a" stroke-width="1.5"/>
+          <rect x="147" y="76" width="6" height="12" fill="#e0b65a"/>
+          <path d="M92 80L208 80L200 70L100 70Z" fill="#231c22" stroke="#e0b65a" stroke-width="2"/>
+          <g id="liu"></g>
+          <g fill="#f3ecdc">
+            <ellipse cx="150" cy="352" rx="165" ry="22"/>
+            <circle cx="56" cy="338" r="24"/><circle cx="98" cy="330" r="28"/><circle cx="150" cy="334" r="26"/><circle cx="202" cy="328" r="30"/><circle cx="248" cy="340" r="22"/>
+          </g>
+          <g fill="none" stroke="#e0b65a" stroke-width="1.6" opacity=".8"><path d="M70 342q-12-16 6-20q14-2 10 12"/><path d="M190 336q-10-14 6-17q12-1 9 10"/></g>
+        </svg>
+      </div>
+      <div class="gate l"><i></i></div>
+      <div class="gate r"><i></i></div>
+    </div>
+    <div class="burner" aria-hidden="true">
+      <svg viewBox="0 0 220 210">
+        <defs><linearGradient id="bz" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7a5f2a"/><stop offset="1" stop-color="#34260f"/></linearGradient></defs>
+        <g class="stick" id="s1"><path class="smoke" d="M86 34q-8-10 0-20q8-10 0-20"/><path class="smoke b" d="M86 34q8-10 0-20q-8-10 0-20"/><rect x="84.5" y="40" width="3" height="90" fill="#8b3a26"/><circle class="ember" cx="86" cy="40" r="3.2"/></g>
+        <g class="stick" id="s2"><path class="smoke" d="M110 22q-8-10 0-20q8-10 0-20"/><path class="smoke b" d="M110 22q8-10 0-20q-8-10 0-20"/><rect x="108.5" y="28" width="3" height="100" fill="#8b3a26"/><circle class="ember" cx="110" cy="28" r="3.2"/></g>
+        <g class="stick" id="s3"><path class="smoke" d="M134 34q-8-10 0-20q8-10 0-20"/><path class="smoke b" d="M134 34q8-10 0-20q-8-10 0-20"/><rect x="132.5" y="40" width="3" height="90" fill="#8b3a26"/><circle class="ember" cx="134" cy="40" r="3.2"/></g>
+        <path d="M44 112V84H62V112" fill="none" stroke="#8a6a2e" stroke-width="7"/>
+        <path d="M158 112V84H176V112" fill="none" stroke="#8a6a2e" stroke-width="7"/>
+        <path d="M62 178L52 206H70L78 182Z" fill="#3a2a12"/><path d="M104 184L102 208H118L116 184Z" fill="#3a2a12"/><path d="M158 178L168 206H150L142 182Z" fill="#3a2a12"/>
+        <path d="M30 118L190 118Q186 176 150 186L70 186Q34 176 30 118Z" fill="url(#bz)"/>
+        <rect x="24" y="110" width="172" height="12" rx="4" fill="#a3843f"/>
+        <path d="M40 134H180M44 172H176" stroke="#e0b65a" stroke-opacity=".45"/>
+        <text x="110" y="162" text-anchor="middle" font-size="20" font-weight="900" fill="#e0b65a" fill-opacity=".85" font-family="Noto Serif TC,serif" letter-spacing="6">天赦</text>
+      </svg>
+    </div>
+  </div>
+
+  <div id="motes"></div>
+
+  <div id="decree" aria-live="polite">
+    <div class="rod"></div>
+    <div class="silk" id="silk"><div class="seal a">赦罪</div><div class="seal b">赦業</div><div class="seal c">賜福</div></div>
+    <div class="rod"></div>
+  </div>
+
+  <div id="rite" aria-live="polite">
+    <div class="edict">
+      <div class="rod"></div>
+      <div class="edict-silk">
+        <div class="slots">
+          <div class="slot" data-k="2"><span>賜福</span></div>
+          <div class="slot" data-k="1"><span>赦業</span></div>
+          <div class="slot" data-k="0"><span>赦罪</span></div>
+        </div>
+        <div class="edict-text" id="edictText"></div>
+      </div>
+      <div class="rod"></div>
+    </div>
+    <div class="stamps">
+      <button class="stamp" data-k="0" disabled aria-label="赦罪印"><i class="knob"></i><b>赦罪</b></button>
+      <button class="stamp" data-k="1" disabled aria-label="赦業印"><i class="knob"></i><b>赦業</b></button>
+      <button class="stamp" data-k="2" disabled aria-label="賜福印"><i class="knob"></i><b>賜福</b></button>
+    </div>
+  </div>
+  <div id="blessfx" aria-hidden="true"><div class="fu"><span>福</span></div></div>
+  <div id="flash"></div>
+
+  <div class="dialog">
+    <p class="who" id="who"></p>
+    <p id="cap" aria-live="polite"></p>
+    <button class="btn" id="act" hidden></button>
+  </div>
+
+  <button id="snd" aria-label="鐘聲開關">🔔</button>
+
+  <div id="intro">
+    <div class="intro-card">
+      <p class="brand">三清。玄之子<small>以道之名</small></p>
+      <h1>玉皇天赦日</h1>
+      <p class="date">丙午年八月廿一 戊申日<span>公曆二〇二六年十月一日</span></p>
+      <p class="note">跪於凌霄寶殿前，點香叩首，恭迎玉皇上帝聖駕，呈上疏文，領受赦罪赦業，再求靈籤一枝。</p>
+      <label for="nm">你的稱呼</label>
+      <input id="nm" maxlength="12" placeholder="不填則稱善信" autocomplete="off">
+      <label for="sin">心中所懺（可不填）</label>
+      <textarea id="sin" maxlength="80" placeholder="寫下想放下的過失、心結或舊業"></textarea>
+      <button class="btn" id="enter">入殿參拜</button>
+    </div>
+  </div>
+
+  <div class="modal" id="qian" role="dialog" aria-label="求籤">
+    <div class="panel">
+      <h2>求籤</h2>
+      <p class="hint">心中默念所問之事，搖動籤筒。</p>
+      <input id="ask" maxlength="30" placeholder="所問何事（可不填）" autocomplete="off">
+      <div class="tube-area">
+        <div class="pick" id="pick"></div>
+        <div class="tube-g" id="tubeg">
+          <div class="sticks"><i style="height:52px"></i><i style="height:64px"></i><i style="height:48px"></i><i style="height:70px"></i><i style="height:58px"></i><i style="height:66px"></i><i style="height:50px"></i><i style="height:62px"></i><i style="height:55px"></i></div>
+          <div class="tube">籤</div>
+        </div>
+      </div>
+      <div class="jiao" id="jiao" hidden>
+        <span class="bw"><span class="bei round" id="b1"></span></span>
+        <span class="bw b2 d"><span class="bei flat" id="b2"></span></span>
+      </div>
+      <div class="jres" id="jres"></div>
+      <div class="row"><button class="btn" id="qbtn">搖籤筒</button><button class="btn ghost" id="qclose">回殿</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="shuf" role="dialog" aria-label="填寫疏文">
+    <div class="panel form">
+      <h2>填寫疏文</h2>
+      <p class="hint">天赦日祈安懺悔赦罪疏文。填寫後由你默讀，再焚化上奏。各欄均可留空。</p>
+      <p class="hint small">資料只在此頁面使用，不會儲存或上傳。</p>
+      <div class="fgrid">
+        <label>身份<select id="f_sex"><option>弟子</option><option>信女</option></select></label>
+        <label>姓名<input id="f_name" maxlength="12" autocomplete="off"></label>
+        <label class="full">國家或地區<input id="f_cty" maxlength="12" placeholder="例如：中華民國" autocomplete="off"></label>
+        <label>省<input id="f_prov" maxlength="10" autocomplete="off"></label>
+        <label>市<input id="f_city" maxlength="10" autocomplete="off"></label>
+        <label>區<input id="f_dist" maxlength="10" autocomplete="off"></label>
+        <label>路<input id="f_road" maxlength="14" autocomplete="off"></label>
+        <label class="full">號<input id="f_no" maxlength="12" autocomplete="off"></label>
+        <label>出生年<input id="f_y" maxlength="8" placeholder="例如：庚申" autocomplete="off"></label>
+        <label>月<input id="f_m" maxlength="4" autocomplete="off"></label>
+        <label>日<input id="f_d" maxlength="4" autocomplete="off"></label>
+        <label>時辰<select id="f_h"><option value="子">子時</option><option value="丑">丑時</option><option value="寅">寅時</option><option value="卯">卯時</option><option value="辰">辰時</option><option value="巳">巳時</option><option value="午">午時</option><option value="未">未時</option><option value="申">申時</option><option value="酉">酉時</option><option value="戌">戌時</option><option value="亥">亥時</option><option value="吉">不詳（吉時）</option></select></label>
+      </div>
+      <p class="hint small" style="margin-top:10px">本命生辰一般以農曆填寫。</p>
+      <div class="row"><button class="btn" id="shuMake">生成疏文</button><button class="btn ghost" id="shuSkip">略過</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="shu" role="dialog" aria-label="疏文">
+    <div class="panel wide">
+      <div class="shu-wrap" id="shuWrap">
+        <div class="shu-paper" id="shuPaper"><div class="shu-text" id="shuText"></div></div>
+        <div class="fire"></div>
+      </div>
+      <p class="hint small" id="shuHint" style="margin-top:8px">← 向左滑動閱讀全文</p>
+      <div class="row"><button class="btn" id="burn">焚化上奏</button><button class="btn ghost" id="shuFlip">橫排閱讀</button><button class="btn ghost" id="shuCopy">複製疏文</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="card" role="dialog" aria-label="籤詩">
+    <div class="panel">
+      <div class="slip">
+        <p class="top">玉皇天赦日靈籤</p>
+        <p class="no" id="cno"></p>
+        <div class="lv" id="clv"></div>
+        <div class="poem-wrap"><p class="poem" id="cpoem"></p></div>
+        <p class="jie" id="cjie"></p>
+        <p class="jie" id="cask" hidden></p>
+        <p class="foot" id="cfoot"></p>
+        <div class="cseal">賜福</div>
+      </div>
+      <div class="ai" id="ai" hidden>
+        <h3>殿前解籤問答</h3>
+        <div class="chat" id="chat"></div>
+        <button class="btn start" id="astart">請道長詳解此籤</button>
+        <div class="ai-in"><input id="aq" maxlength="120" placeholder="追問，例如：這籤對我的工作有何提示？" autocomplete="off"><button class="btn sm" id="asend">請示</button></div>
+        <div class="row"><button class="btn ghost sm" id="astop" hidden>停止</button></div>
+        <p class="ai-note" id="anote">解籤僅供參考，重大決定請自行斟酌；健康、法律、財務之事宜請教專業人士。</p>
+      </div>
+      <div class="row"><button class="btn" id="again">再求一籤</button><button class="btn ghost" id="back">回殿</button></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const R=n=>{const a=new Uint32Array(1);crypto.getRandomValues(a);return a[0]%n;};
+const wait=ms=>new Promise(r=>setTimeout(r,reduce?Math.min(ms,250):ms));
+let NAME='善信',SIN='',sound=true,AC;
+
+/* 冕旒 */
+(()=>{const cols=['#f3ecdc','#6fae8e','#b23a2e','#e0b65a'];let h='';
+for(let i=0;i<12;i++){const x=(96+i*108/11).toFixed(1);
+ h+=`<line x1="${x}" y1="80" x2="${x}" y2="136" stroke="#caa050" stroke-width=".8"/>`;
+ for(let j=0;j<8;j++)h+=`<circle cx="${x}" cy="${86+j*6.6}" r="2.6" fill="${cols[(i+j)%4]}"/>`;}
+$('#liu').innerHTML=h;})();
+
+function bell(f=528,dur=2.4,vol=.16){
+  if(!sound)return;
+  try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;
+   [1,2.76,5.4].forEach((m,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f*m;
+    g.gain.setValueAtTime(vol/(i+1),t);g.gain.exponentialRampToValueAtTime(.0001,t+dur/(i+1));o.connect(g).connect(AC.destination);o.start(t);o.stop(t+dur);});
+  }catch(e){}
+}
+function drum(){ if(!sound)return; try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;
+  const o=AC.createOscillator(),g=AC.createGain();o.frequency.setValueAtTime(110,t);o.frequency.exponentialRampToValueAtTime(48,t+.5);
+  g.gain.setValueAtTime(.5,t);g.gain.exponentialRampToValueAtTime(.001,t+.7);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+.8);}catch(e){} }
+$('#snd').onclick=()=>{sound=!sound;$('#snd').textContent=sound?'🔔':'🔕';};
+
+/* dialog */
+const cap=$('#cap'),who=$('#who'),act=$('#act');let timer=null,skip=null;
+function say(w,t){who.textContent=w||'';setAct('');return new Promise(res=>{
+  clearInterval(timer);cap.textContent='';
+  if(reduce){cap.textContent=t;res();return;}
+  let i=0;timer=setInterval(()=>{cap.textContent=t.slice(0,++i);if(i>=t.length){clearInterval(timer);timer=null;skip=null;res();}},55);
+  skip=()=>{clearInterval(timer);timer=null;skip=null;cap.textContent=t;res();};
+});}
+$('.dialog').addEventListener('click',e=>{if(e.target!==act&&skip)skip();});
+function setAct(label,fn,keep){act.hidden=!label;act.disabled=false;act.textContent=label||'';
+  act.onclick=fn?(keep?fn:()=>{act.hidden=true;act.onclick=null;fn();}):null;if(label)act.focus({preventScroll:true});}
+function flash(){const f=$('#flash');f.classList.remove('go');void f.offsetWidth;f.classList.add('go');}
+
+/* flow */
+$('#enter').onclick=async()=>{
+  NAME=$('#nm').value.trim()||'善信';SIN=$('#sin').value.trim();
+  $('#intro').classList.add('gone');bell(440);
+  await wait(900);
+  await say('','你跪在凌霄寶殿前的蒲團上。今日丙午年八月廿一，戊申天赦，天門將開。');
+  let n=0;
+  setAct('點香（一／三）',()=>{n++;$('#s'+n).classList.add('lit');bell(600+n*60,1.2,.08);
+    if(n<3)act.textContent=`點香（${'一二三'[n]}／三）`;else stepBow();},true);
+};
+async function stepBow(){
+  await say('','三炷清香已上，香煙直上九霄。請叩首三拜。');
+  let b=0;const labels=['一拜','二拜','三拜'];
+  const doBow=()=>{act.disabled=true;const w=$('#world');w.classList.remove('bow');void w.offsetWidth;w.classList.add('bow');drum();
+    setTimeout(()=>{act.disabled=false;b++;if(b<3)act.textContent=labels[b];else openGate();},reduce?200:1250);};
+  setAct(labels[0],doBow,true);
+}
+async function openGate(){
+  await say('','鐘鼓齊鳴，金闕緩緩開啟……');
+  drum();setTimeout(drum,500);setTimeout(()=>bell(392,3.2,.2),900);
+  $('#world').classList.add('open');setTimeout(flash,700);
+  await wait(3400);
+  await say('','祥雲湧動，紫氣東來。昊天金闕至尊玉皇上帝，聖駕降臨。');
+  setAct('恭迎聖駕',async()=>{
+    bell(528);
+    await say('玉皇上帝',`${NAME}，今逢戊申天赦，朕開金闕，普赦人間罪愆。`);
+    setAct('稽首',speak2);
+  });
+}
+async function speak2(){
+  spawnMotes();
+  const s=SIN?`汝心中所懺「${SIN.length>30?SIN.slice(0,30)+'……':SIN}」，朕已盡知。`:'汝心中所懺，朕已盡知。';
+  await say('玉皇上帝',s);
+  await wait(300);
+  await say('玉皇上帝','誠心懺悔者，罪可赦，業可消。可將疏文呈上。');
+  setAct('填寫疏文',()=>{if(!$('#f_name').value)$('#f_name').value=NAME==='善信'?'':NAME;$('#shuf').classList.add('on');});
+}
+function spawnMotes(){
+  const box=$('#motes');box.innerHTML='';
+  const frags=SIN?SIN.split(/[，。、,.!！?？;；：:\s]+/).filter(Boolean).slice(0,4).map(s=>s.slice(0,8)):[];
+  const sins=['前愆','過失','無心之罪','有心之過',...frags];
+  const karma=['身業','口業','意業','宿業','冤結'];
+  [...sins.map(t=>[t,'sin']),...karma.map(t=>[t,'karma'])].forEach(([t,c],i)=>{
+    const m=document.createElement('span');m.className='mote '+c;const b=document.createElement('b');b.textContent=t;
+    b.style.animationDelay=`-${R(4000)}ms`;m.appendChild(b);
+    m.style.left=(4+R(72))+'%';m.style.top=(10+R(50))+'%';box.appendChild(m);
+    setTimeout(()=>m.classList.add('in'),80+i*160);
+  });
+}
+function freeMotes(sel){document.querySelectorAll(sel).forEach((m,i)=>{setTimeout(()=>m.classList.add('freed'),i*170);});}
+/* 敕令蓋印儀式 */
+let stepK=0,stampBusy=false;
+const STAMP_LABEL=['赦罪','赦業','賜福'];
+function readyStamp(k){document.querySelectorAll('.stamp').forEach((b,i)=>{b.classList.toggle('ready',i===k);b.disabled=i!==k;});}
+async function showDecree(){
+  const cols=['敕令','昊天金闕至尊玉皇上帝','今逢丙午年八月廿一　戊申天赦之辰',`${SEX==='信女'?'信女':'信士'}${NAME}　誠心懺悔`,'身口意三業　有心無心之過','一切罪愆業障　悉皆赦除'];
+  const tx=$('#edictText');tx.innerHTML='';
+  cols.forEach((t,i)=>{const d=document.createElement('div');if(i===0)d.className='t';d.textContent=t;tx.appendChild(d);});
+  {const sk=$('.edict-silk'),sl=$('.slots');const W=sk.clientWidth-sl.offsetWidth-12-28,Hh=sk.clientHeight-28;
+   const f=Math.max(12,Math.min(Hh/(Math.max(...cols.map(c=>c.length))*1.08+.6),W/((cols.length+.35)*1.78),22));tx.style.fontSize=f.toFixed(1)+'px';}
+  document.querySelectorAll('.slot .print').forEach(e=>e.remove());
+  document.querySelectorAll('.stamp').forEach(b=>b.classList.remove('used','ready'));
+  document.querySelectorAll('.mote:not(.freed)').forEach((m,i)=>{m.classList.add('side');
+    m.style.left=(i%2?80+R(10):2+R(8))+'%';m.style.top=(6+R(78))+'%';});
+  stepK=0;$('#rite').classList.add('on');bell(660,1.6,.1);
+  await wait(1300);
+  await say('玉皇上帝','敕令已下。汝可依次蓋印，領受天恩。');
+  readyStamp(0);setAct('蓋赦罪印',()=>stampIt(0));
+}
+async function stampIt(k){
+  if(stampBusy||k!==stepK)return;stampBusy=true;setAct('');readyStamp(-1);
+  const src=document.querySelector(`.stamp[data-k="${k}"]`),slot=document.querySelector(`.slot[data-k="${k}"]`);
+  src.classList.remove('ready');
+  const a=src.getBoundingClientRect(),b=slot.getBoundingClientRect();
+  const fly=document.createElement('div');fly.className='fly';fly.innerHTML=src.innerHTML;
+  Object.assign(fly.style,{left:a.left+'px',top:a.top+'px',width:a.width+'px',height:a.height+'px'});
+  document.body.appendChild(fly);src.classList.add('used');
+  const faceY=a.top+a.height*.7;
+  const dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-faceY;
+  const T=reduce?300:1100;
+  const an=fly.animate([
+    {transform:'translate(0,0) scale(1)'},
+    {transform:`translate(${dx}px,${dy-70}px) scale(1.18)`,offset:.55},
+    {transform:`translate(${dx}px,${dy-80}px) scale(1.22)`,offset:.72},
+    {transform:`translate(${dx}px,${dy}px) scale(.96)`,offset:.9},
+    {transform:`translate(${dx}px,${dy}px) scale(1)`}],{duration:T,easing:'ease-in-out',fill:'forwards'});
+  setTimeout(()=>{
+    const pr=document.createElement('div');pr.className='print';
+    STAMP_LABEL[k].split('').forEach(c=>{const sp=document.createElement('span');sp.textContent=c;pr.appendChild(sp);});
+    const ring=document.createElement('i');ring.className='ink';slot.appendChild(ring);slot.appendChild(pr);
+    setTimeout(()=>ring.remove(),900);
+    const r=$('#rite');r.classList.remove('shake');void r.offsetWidth;r.classList.add('shake');
+    drum();setTimeout(()=>bell([784,880,1046][k],3,.18),120);if(k)setTimeout(flash,150);
+  },T*.9);
+  await an.finished.catch(()=>{});
+  fly.animate([{opacity:1,transform:`translate(${dx}px,${dy}px)`},{opacity:0,transform:`translate(${dx}px,${dy-120}px) scale(.9)`}],{duration:500,fill:'forwards'});
+  setTimeout(()=>fly.remove(),600);
+  stepK=k+1;stampBusy=false;
+  if(k===0){
+    freeMotes('.mote.sin');await wait(700);
+    await say('','赦罪印落。前愆過失，如春冰遇暖，化作金光升上九霄。');
+    readyStamp(1);setAct('蓋赦業印',()=>stampIt(1));
+  }else if(k===1){
+    freeMotes('.mote.karma');freeMotes('.mote:not(.freed)');await wait(700);
+    await say('','赦業印落。身業、口業、意業，一時消散。周身輕盈，如沐金光。');
+    await say('玉皇上帝',`${NAME}，罪已赦，業已消。朕今再賜汝福。`);
+    readyStamp(2);setAct('蓋賜福印',()=>stampIt(2));
+  }else{
+    setTimeout(()=>bell(1046,3,.16),300);await wait(1100);doBless();
+  }
+}
+document.querySelectorAll('.stamp').forEach(b=>b.addEventListener('click',()=>stampIt(+b.dataset.k)));
+
+/* 賜福 */
+async function doBless(){
+  const fx=$('#blessfx');fx.querySelectorAll('.bl').forEach(e=>e.remove());
+  ['平安','健康','財祿','順遂','智慧','姻緣'].forEach((t,i)=>{const a=(i*60-90)*Math.PI/180,e=document.createElement('span');
+    e.className='bl';e.textContent=t;e.style.setProperty('--x',Math.round(Math.cos(a)*Math.min(innerWidth*.36,190))+'px');
+    e.style.setProperty('--y',Math.round(Math.sin(a)*Math.min(innerHeight*.2,170))+'px');e.style.animationDelay=(1+i*.2)+'s';fx.appendChild(e);});
+  $('#rite').classList.remove('on');fx.classList.add('on');flash();bell(784,3.4,.14);
+  await wait(1400);
+  await say('','賜福印落，福字自天而降。平安、健康、財祿、順遂、智慧、姻緣，六福臨身。');
+  await say('玉皇上帝',`${NAME}，福自心生，亦須以善行守之。可在殿前求籤一枝，以問前程。`);
+  fx.classList.remove('on');
+  setAct('求籤問事',openQian);
+}
+
+/* 疏文 */
+let SEX='弟子',SHU_LINES=[];
+function buildShu(){
+  const g=id=>$('#'+id).value.trim(),b=(v,n)=>v||'＿'.repeat(n);
+  SEX=$('#f_sex').value;const nm=g('f_name')||(NAME!=='善信'?NAME:'');const who=SEX+b(nm,4);
+  const hr=$('#f_h').value;
+  const L=[
+   ['t','天赦日祈安懺悔赦罪疏文'],['h','伏　以'],
+   ['','天道慈悲，廣開赦宥之門；'],['','人心懇惻，發露懺悔之誠。'],['','天心至仁，恩被兆民；神威顯赫，化解諸愆。'],
+   ['h','今　據'],
+   ['me',`${b(g('f_cty'),4)}${b(g('f_prov'),3)}省${b(g('f_city'),3)}市${b(g('f_dist'),3)}區${b(g('f_road'),4)}路${b(g('f_no'),3)}號`],
+   ['me',`吉宅居住，沐恩言祈求赦罪轉運${who}，本命生於${b(g('f_y'),3)}年${b(g('f_m'),2)}月${b(g('f_d'),2)}日${hr}時建生。`],
+   ['','誠惶誠恐，稽首頓首，虔備香茶、鮮花、時果、清酌、金銀財寶等儀，謹焚香頂禮，恭請：'],
+   ['','昊天金闕無上至尊自然妙有彌羅至真高天上聖大慈仁者玉皇赦罪大天尊　玉帝閣下'],
+   ['','三官大帝赦罪天尊'],['','值年太歲星君'],['','本境城隍尊神'],['','福德正神及列位諸佛菩薩、列位正神　同垂玄鑒'],
+   ['h','申　奏　文　詞'],
+   ['me',`言念${who}竊念：`],
+   ['','凡胎肉身，沈淪塵世，生居五濁之中，性迷名利之場。'],
+   ['','自知智慧淺薄，多行偏頗；歷劫以來以至今生，未悟善惡因果之本。'],
+   ['','或於身業所犯：殺傷物命、怠惰奢靡、損人利己、舉止輕浮；'],
+   ['','或於口業所犯：惡口詈罵、兩舌挑撥、妄言欺瞞、綺語不端、言語傷人；'],
+   ['','或於意業所犯：貪戀執迷、嗔恚嫉妒、癡迷愚昧、怨天尤人、邪思妄念。'],
+   ['','諸多過失，未能慎防於未萌；累劫罪咎，積聚而成障礙。'],
+   ['','以致行藏困阻、運氣乖舛、心神不寧、疾厄交加、家門多滯。'],
+   ['','今逢　天赦吉日，恭聞天公好生之德，赦宥萬方罪愆。'],
+   ['me',`${SEX}內照自省，痛徹前非，滿懷愧疚，今於神前發露懺悔，誓改前愆。`]];
+  if(SIN)L.push(['me',`所懺之事：${SIN}`]);
+  L.push(['h','伏　乞'],
+   ['',`玉皇大天尊大慈大悲，大開宏恩，憐憫${SEX}凡夫肉胎之過：`],
+   ['','赦除往昔無心之過、減免宿世累積之愆。'],['','化解冤愆債主之仇怨，消除命宮運途之凶煞。'],
+   ['',`自此之後，${SEX}立願洗心滌慮、恪遵倫常、行善積德、口吐良言、心存善念，廣修福田，不敢復蹈前轍。`],
+   ['h','更　祈'],['','神恩護佑，福曜照臨：'],['','元辰光彩，身心清吉，'],['','災消厄解，闔家平安，'],['','事業順遂，貴人相扶，諸事吉祥。'],
+   ['h','恭此上奉'],['','昊天金闕玉皇大天尊　案前'],
+   ['','天運歲次　丙午年　丁酉月　戊申日（農曆八月廿一）'],
+   ['me',`吉時　沐恩${who}　叩首百拜上申`]);
+  SHU_LINES=L;const box=$('#shuText');box.innerHTML='';
+  L.forEach(([c,t])=>{const d=document.createElement('div');if(c)d.className=c;d.textContent=t;box.appendChild(d);});
+}
+$('#shuMake').onclick=async()=>{
+  buildShu();$('#shuf').classList.remove('on');
+  const pp=$('#shuPaper');pp.classList.remove('burn','flat');$('#shuWrap').classList.remove('burning');$('#shuFlip').textContent='橫排閱讀';
+  $('#shuHint').textContent='← 向左滑動閱讀全文';$('#burn').disabled=false;
+  $('#shu').classList.add('on');pp.scrollLeft=pp.scrollWidth;pp.scrollTop=0;bell(660,1.4,.08);
+  await say('','請靜心默讀疏文，讀畢焚化上奏。');
+};
+$('#shuSkip').onclick=async()=>{
+  $('#shuf').classList.remove('on');SEX=$('#f_sex').value;
+  await say('玉皇上帝','無疏亦可，心誠則靈。');setAct('呈上懺悔',showDecree);
+};
+$('#shuFlip').onclick=()=>{const pp=$('#shuPaper'),f=pp.classList.toggle('flat');
+  $('#shuFlip').textContent=f?'直排閱讀':'橫排閱讀';$('#shuHint').textContent=f?'向下滑動閱讀全文':'← 向左滑動閱讀全文';
+  pp.scrollTop=0;pp.scrollLeft=f?0:pp.scrollWidth;};
+$('#shuCopy').onclick=async()=>{const t=SHU_LINES.map(l=>l[1]).join('\n');
+  try{await navigator.clipboard.writeText(t);$('#shuHint').textContent='已複製疏文全文';}
+  catch(e){$('#shuHint').textContent='此處未能自動複製，請長按文字自行複製';}};
+$('#burn').onclick=async()=>{
+  $('#burn').disabled=true;const w=$('#shuWrap');w.querySelectorAll('.ember2').forEach(e=>e.remove());
+  for(let i=0;i<22;i++){const e=document.createElement('i');e.className='ember2';e.style.left=R(100)+'%';
+    e.style.setProperty('--dx',(R(80)-40)+'px');e.style.animationDelay=(R(1800))+'ms';w.appendChild(e);}
+  $('#shuHint').textContent='疏文焚化上奏中……';
+  w.classList.add('burning');$('#shuPaper').classList.add('burn');drum();setTimeout(()=>bell(392,3,.18),300);
+  await wait(2900);
+  $('#shu').classList.remove('on');flash();
+  await say('','疏文化作青煙，裊裊直上凌霄。');
+  await say('玉皇上帝',`${NAME}之疏，朕已覽之。`);
+  showDecree();
+};
+
+/* 籤 */
+const Q=[
+{lv:'上上',p:['金闕開門紫氣臨','赦書一紙滌塵心','前愆盡化春冰散','從此青雲步步深'],j:'舊過已消，新運方啟。所謀所求，漸次順遂。守住善念，福氣自然綿長。'},
+{lv:'上上',p:['瑤池水暖映天光','業海回頭即慈航','莫問昨宵風雨事','今朝桂子滿庭香'],j:'昨日之事不必再掛心，放下即得自在。家中喜事將近。'},
+{lv:'上',p:['雲開月出照山川','枯木逢春又一年','守得善心行正道','功名財利自周全'],j:'困局將解。行正道則名利兩全，貴在持之以恆。'},
+{lv:'上',p:['一炷清香達九天','玉皇垂目念誠虔','家門和氣添丁口','宅運亨通福祿綿'],j:'誠心有感應。家宅平安和睦，人丁興旺，福祿綿延。'},
+{lv:'中',p:['舟行半渡遇微風','且把篙竿穩在中','莫急莫慌隨水去','前頭自有岸相逢'],j:'事已過半，遇小阻不必慌。穩守本心，自然到岸。'},
+{lv:'上上',p:['天赦恩深似海寬','千重業網一朝殘','靈臺拂淨無塵垢','福自心生壽自安'],j:'心中重擔可以放下。心淨則福生，身心康泰，福壽自來。'},
+{lv:'中',p:['秋收須待露霜時','莫怨禾苗長得遲','勤把犁鋤耕晚照','倉廩終有滿盈期'],j:'時機未熟，不宜急於求成。勤懇耕耘，收成在後。'},
+{lv:'中下',p:['烏雲蔽日路難分','暫守茅廬待好晨','今日既蒙天赦後','懺心一轉即回春'],j:'眼下宜靜不宜動。既蒙天赦，誠心改過，運勢即可回轉。'},
+{lv:'上',p:['鳳鳴高岡羽翼新','貴人相引出風塵','求財得利謀皆遂','莫忘施恩濟困貧'],j:'有貴人提攜，求財謀事皆可成。得利之後，宜布施行善。'},
+{lv:'中',p:['燈前莫計往時非','心鏡磨光自有輝','口業須防言語過','三思出語福相隨'],j:'宜反省自身，慎言慎行，尤防口舌是非。言語得當，福自相隨。'},
+{lv:'上',p:['紅鸞星動照門楣','良緣天定不須疑','珍重眼前知心者','相扶相守到齊眉'],j:'姻緣有望。已有伴者宜珍惜眼前人，相互扶持，白首可期。'},
+{lv:'中',p:['病去如抽絲一般','調身養性莫心煩','玉皇賜得甘霖降','漸見康寧笑語歡'],j:'身心之困需時調養，宜遵醫囑，放寬心懷，循序漸進，終得康寧。'},
+{lv:'中下',p:['逆水行舟力不從','暫宜收帆避狂風','守拙持齋行善事','他年轉運氣如虹'],j:'時運未至，宜守不宜攻。持善積福，來日自有轉機。'},
+{lv:'上上',p:['八月廿一天門開','赦書飛下紫雲來','一身輕似秋空淨','萬般吉慶入門階'],j:'正應今日天赦之吉。一身清淨，所求皆吉，喜慶臨門。'},
+{lv:'中',p:['山前山後路多歧','擇善而行莫遲疑','問卜不如先問己','心安何處不相宜'],j:'抉擇之際，先問本心。擇善而行，無往不宜。'},
+{lv:'上',p:['春蠶吐盡絲千尺','終織錦袍耀四方','昔日辛勞今有報','一門喜氣沐天光'],j:'昔日付出將得回報，事業有成，全家同喜。'},
+{lv:'中',p:['明月雖圓有缺時','人間得失莫嗟咨','知足常樂心無礙','淡飯粗茶也是詩'],j:'得失有時，知足常樂。心無掛礙，平淡亦是福。'},
+{lv:'上',p:['枯井逢泉水自清','舊冤舊債一時平','從今結下善緣去','處處逢人笑相迎'],j:'舊怨舊結得以化解，人際和順，宜廣結善緣。'},
+{lv:'中下',p:['夜行無燭步難前','且靜心神待曉天','燃起心燈三寸亮','迷途自有引路仙'],j:'前路未明，宜靜待時機。心燈一亮，自有貴人指引。'},
+{lv:'上',p:['文星高照案頭明','筆下生花榜上名','莫負寒窗燈火苦','青雲有路足下行'],j:'學業考試有利。勤學不懈，終能金榜題名。'},
+{lv:'上上',p:['廿一吉籤天所賜','玉皇親筆赦前因','從茲罪業如霜化','一片丹心萬象新'],j:'與今日八月廿一同數，大吉。前因盡赦，萬象更新，所求如意。'}
+];
+function cn(n){const d='〇一二三四五六七八九';if(n<=10)return n===10?'十':d[n];if(n<20)return'十'+d[n-10];return d[Math.floor(n/10)]+'十'+(n%10?d[n%10]:'');}
+
+let num=0,state='shake';
+const qbtn=$('#qbtn'),jres=$('#jres'),pick=$('#pick');
+function resetQian(){state='shake';num=0;pick.classList.remove('out');pick.style.opacity=0;$('#jiao').hidden=true;jres.innerHTML='';qbtn.textContent='搖籤筒';qbtn.disabled=false;}
+function openQian(){$('#card').classList.remove('on');resetQian();$('#qian').classList.add('on');}
+qbtn.onclick=()=>{
+  if(state==='shake'){
+    qbtn.disabled=true;pick.classList.remove('out');pick.style.opacity=0;$('#jiao').hidden=true;jres.innerHTML='';
+    const g=$('#tubeg');g.classList.remove('shake');void g.offsetWidth;g.classList.add('shake');
+    let k=0;const rattle=setInterval(()=>{bell(1200+R(400),.15,.04);if(++k>8)clearInterval(rattle);},160);
+    setTimeout(()=>{num=R(21)+1;pick.textContent=`第${cn(num)}籤`;pick.style.opacity='';pick.classList.add('out');bell(700,1.2,.1);
+      jres.innerHTML=`<strong>第${cn(num)}籤</strong>請擲筊請示玉皇，得聖杯方可領籤。`;
+      state='toss';qbtn.textContent='擲筊';qbtn.disabled=false;},reduce?200:1600);
+  }else if(state==='toss'){
+    qbtn.disabled=true;$('#jiao').hidden=false;
+    document.querySelectorAll('.bw').forEach(w=>{w.classList.remove('toss');void w.offsetWidth;w.classList.add('toss');});
+    const r=R(100);let a,b,res;
+    if(r<58){res='sheng';[a,b]=R(2)?['round','flat']:['flat','round'];}
+    else if(r<80){res='xiao';a=b='flat';}
+    else{res='yin';a=b='round';}
+    setTimeout(()=>{$('#b1').className='bei '+a;$('#b2').className='bei '+b;},reduce?50:550);
+    setTimeout(()=>{drum();qbtn.disabled=false;
+      if(res==='sheng'){jres.innerHTML='<strong>聖杯</strong>一平一凸，玉皇允准，此籤是你的。';state='card';qbtn.textContent='領取籤詩';bell(880,2,.14);}
+      else if(res==='xiao'){jres.innerHTML='<strong>笑杯</strong>兩面皆平，神意未明，請再擲一次。';}
+      else{jres.innerHTML='<strong>陰杯</strong>兩面皆凸，此籤非你所求，請重新搖籤。';state='shake';qbtn.textContent='重新搖籤';}
+    },reduce?200:1150);
+  }else if(state==='card'){showCard();}
+};
+$('#qclose').onclick=()=>{$('#qian').classList.remove('on');setAct('求籤問事',openQian);};
+function showCard(){
+  const q=Q[num-1];
+  $('#cno').textContent=`第${cn(num)}籤`;$('#clv').textContent=q.lv;
+  $('#cpoem').innerHTML='';q.p.forEach(l=>{const s=document.createElement('span');s.textContent=l;$('#cpoem').appendChild(s);});
+  $('#cjie').innerHTML='<b>解曰</b>';$('#cjie').append(q.j);
+  const ask=$('#ask').value.trim();const ca=$('#cask');
+  if(ask){ca.hidden=false;ca.innerHTML='<b>所問</b>';ca.append(ask);}else ca.hidden=true;
+  $('#cfoot').textContent=`${NAME} 求得 丙午年八月廿一 玉皇天赦日\n三清。玄之子 以道之名`;
+  $('#cfoot').style.whiteSpace='pre-line';
+  resetAI(num);$('#qian').classList.remove('on');$('#card').classList.add('on');$('#card').scrollTop=0;
+}
+
+/* AI 解籤問答 */
+let sample=null,turns=[],busy=false,ctl=null,curQ=null;
+(async()=>{try{if(window.claude&&claude.use){sample=await claude.use('sample');}}catch(e){sample=null;}
+  if(sample&&$('#card').classList.contains('on'))$('#ai').hidden=false;})();
+const chat=$('#chat');
+function addMsg(role,text){const d=document.createElement('div');d.className='msg '+(role==='user'?'u':'a');
+  if(role!=='user'){const b=document.createElement('span');b.className='by';b.textContent='解籤道長';d.appendChild(b);}
+  const t=document.createElement('span');t.textContent=text;d.appendChild(t);chat.appendChild(d);chat.scrollTop=chat.scrollHeight;return t;}
+function resetAI(n){turns=[];chat.innerHTML='';curQ=n;$('#astart').hidden=false;$('#aq').value='';$('#ai').hidden=!sample;}
+function preamble(){const q=Q[curQ-1];const ask=$('#ask').value.trim();
+  return `你是「三清。玄之子」殿前的解籤道長，正在為善信解讀玉皇天赦日（丙午年八月廿一，戊申日，公曆2026年10月1日）所求的靈籤。
+善信稱呼：${NAME}
+${SIN?`善信懺悔之事：${SIN}\n`:''}${ask?`善信所問之事：${ask}\n`:'善信未說明所問之事。\n'}籤號：第${cn(curQ)}籤（${q.lv}）
+籤詩：${q.p.join('，')}。
+解曰：${q.j}
+
+回答規則：
+- 一律用繁體中文，語氣溫和、莊重、帶道家智慧，稱對方為「${NAME}」。
+- 緊扣這枝籤的籤詩與解曰，結合善信所問，逐句或擇要點解說，並給出具體、可行的修身行善建議。
+- 每次回答約150至300字，用純文字，不用Markdown符號。
+- 不作絕對或恐嚇式斷言，不叫人花錢買法事或物品；涉及健康、法律、財務時，提醒請教專業人士。
+- 若問題與籤意無關，仍以道家觀點溫和回應，再引回籤意。`;}
+async function askAI(q){
+  if(!sample||busy)return;busy=true;$('#asend').disabled=true;$('#astart').hidden=true;
+  addMsg('user',q);
+  const content=turns.length?q:preamble()+'\n\n善信的話：'+q;
+  turns.push({role:'user',content});
+  const out=addMsg('assistant','道長正在參詳籤意……');
+  ctl=new AbortController();$('#astop').hidden=false;
+  try{
+    const send=turns.length>13?[turns[0],turns[1],...turns.slice(-11)]:turns;
+    const {text}=await sample(send,{signal:ctl.signal,modelTier:'quick',cache:false,onText:({text})=>{out.textContent=text;chat.scrollTop=chat.scrollHeight;}});
+    out.textContent=text;turns.push({role:'assistant',content:text});
+  }catch(e){
+    turns.pop();
+    const msgs={not_granted:'未獲准使用解籤問答。',rate_limited:'請示太頻繁，請稍候片刻再問。',cancelled:'已停止。'};
+    out.textContent=(e&&e.text?e.text+'\n\n':'')+(msgs[e&&e.code]||'道長暫時未能回應，請稍後再試。');
+    if(e&&e.code==='not_granted')$('#ai').hidden=true;
+  }finally{busy=false;$('#asend').disabled=false;$('#astop').hidden=true;}
+}
+$('#astart').onclick=()=>{const ask=$('#ask').value.trim();askAI(ask?`請為我詳解此籤，我所問的是：${ask}`:'請為我詳解此籤。');};
+$('#asend').onclick=()=>{const v=$('#aq').value.trim();if(!v)return;$('#aq').value='';askAI(v);};
+$('#aq').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.isComposing){e.preventDefault();$('#asend').click();}});
+$('#astop').onclick=()=>ctl&&ctl.abort();
+
+$('#again').onclick=openQian;
+$('#back').onclick=async()=>{$('#card').classList.remove('on');
+  await say('玉皇上帝','籤意已明。去吧，善行即是最好的供養。');setAct('再求一籤',openQian);};
+})();
+</script>
+</body>
+</html>
